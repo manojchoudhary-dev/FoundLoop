@@ -69,6 +69,15 @@
       .hero h1 .amp{color:var(--teal);font-style:italic}
       .hero p.lede{margin:0;max-width:56ch;color:var(--ink-2);font-size:1.06rem}
       .hero p.lede strong{color:var(--ink)}
+      .fb-status{
+        display:inline-flex;align-items:center;gap:8px;margin:14px 0 0;background:var(--surface);
+        border:1px solid var(--line);border-radius:999px;padding:6px 13px;font-size:.82rem;
+        font-weight:700;color:var(--ink-2);box-shadow:var(--shadow);
+      }
+      .fb-status .dot{width:9px;height:9px;border-radius:50%;background:var(--amber-strong);flex:0 0 auto}
+      .fb-status.live .dot{background:var(--teal)}
+      .fb-status.error{color:var(--rust);border-color:var(--rust)}
+      .fb-status.error .dot{background:var(--rust)}
       .stats{display:flex;gap:10px;flex-wrap:wrap}
       .stat{
         background:var(--surface);border:1px solid var(--line);border-radius:14px;
@@ -154,6 +163,7 @@
         transition:transform .12s, opacity .12s;
       }
       .submit-btn:hover{transform:translateY(-1px)}
+      .submit-btn:disabled{opacity:.55;cursor:wait;transform:none}
       .submit-btn:active{transform:translateY(0)}
       .form-msg{display:none;margin-top:12px;border-radius:10px;padding:11px 13px;font-size:.92rem;font-weight:600}
       .form-msg.ok{display:block;background:var(--teal-tint);color:var(--teal-dark)}
@@ -282,6 +292,7 @@
           <div>
             <h1>Campus Lost <span class="amp">&amp;</span> Found</h1>
             <p class="lede">Lost your calculator in the library? Found someone&rsquo;s ID card at the gate? <strong>Post it here</strong> &mdash; the board matches lost and found posts by keyword, so things find their way back faster.</p>
+            <p class="fb-status" id="fbStatus" role="status"><span class="dot"></span><span id="fbStatusText">Connecting to Firebase&hellip;</span></p>
           </div>
           <div class="stats" aria-label="Board statistics">
             <div class="stat lost"><b id="statLost">0</b><span>Still lost</span></div>
@@ -439,13 +450,16 @@
       </div>
 
       <footer>
-        <span>Campus Lost &amp; Found &mdash; a student notice board for getting things back to their owners.</span>
+        <span>Campus Lost &amp; Found &mdash; a student notice board for getting things back to their owners.<br />Built by Manoj Choudhary &middot; Scholar No. 26U020146 &middot; FoCP (CSE-1003)</span>
         <span>Tip: always verify one detail from the description before handing an item over.</span>
       </footer>
     </div>
 
     <div class="toast" id="toast" role="status"></div>
 
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
     <script>
       (function(){
         "use strict";
@@ -470,13 +484,39 @@
         var ICON_PIN = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>';
         var ICON_CAL = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="17" rx="2"/><path d="M8 2.5v4M16 2.5v4M3 10h18"/></svg>';
 
-        /* ---------- Board items (starts empty; posts are added in this session) ---------- */
+        /* ---------- Firebase backend (Cloud Firestore + Storage) ---------- */
+        var firebaseConfig = {
+          apiKey: "AIzaSyB4ffh7rrqSOI5bYY99aQqBEQ9GCZVl0lo",
+          authDomain: "stufffound-lost.firebaseapp.com",
+          databaseURL: "https://stufffound-lost-default-rtdb.firebaseio.com",
+          projectId: "stufffound-lost",
+          storageBucket: "stufffound-lost.firebasestorage.app",
+          messagingSenderId: "314207572540",
+          appId: "1:314207572540:web:6984033c3ef4d0cb536939"
+        };
+        var db = null, storage = null, itemsCol = null;
+        function setStatus(state, text){
+          var el = $("fbStatus");
+          el.className = "fb-status" + (state ? " " + state : "");
+          $("fbStatusText").textContent = text;
+        }
+        try {
+          if(typeof firebase === "undefined") throw new Error("Firebase SDK did not load");
+          firebase.initializeApp(firebaseConfig);
+          db = firebase.firestore();
+          storage = firebase.storage();
+          itemsCol = db.collection("lostItems");
+        } catch(err) {
+          setStatus("error", "Could not connect to Firebase — check your internet connection and reload the page.");
+        }
+
+        /* ---------- Board items (loaded live from Firestore; starts empty) ---------- */
         var items = [];
-        var nextId = 1;
 
         /* ---------- State ---------- */
         var postType = "lost";
         var photoData = null;
+        var photoFile = null;
         var filterType = "all";
         var flashId = null;
 
@@ -568,7 +608,7 @@
             }
             return true;
           });
-          visible.sort(function(a,b){ return b.id - a.id; });
+          visible.sort(function(a,b){ return (b.createdAt || 0) - (a.createdAt || 0); });
 
           $("boardCount").textContent = visible.length + (visible.length === 1 ? " listing" : " listings");
           if(visible.length === 0){
@@ -659,6 +699,7 @@
           var f = fileInput.files && fileInput.files[0];
           if(!f) return;
           if(!/^image\//.test(f.type)){ showMsg("That file is not an image. Please pick a photo.", false); return; }
+          photoFile = f;
           var reader = new FileReader();
           reader.onload = function(){
             photoData = reader.result;
@@ -669,6 +710,7 @@
         });
         $("photoRemove").addEventListener("click", function(){
           photoData = null;
+          photoFile = null;
           fileInput.value = "";
           $("photoPreview").style.display = "none";
         });
@@ -694,25 +736,70 @@
             showMsg("Please fill the starred fields — item name, category, date, place, your name and a contact.", false);
             return;
           }
-          var item = { id: nextId++, type: postType, title: title, category: category, place: place, date: date, desc: desc, name: name, contact: contact, photo: photoData, resolved: false };
-          items.unshift(item);
-          flashId = item.id;
-          render();
-
-          /* Reset form (keep name/contact for fast second post) */
-          $("fTitle").value = ""; $("fCategory").value = ""; $("fPlace").value = ""; $("fDesc").value = "";
-          photoData = null; fileInput.value = ""; $("photoPreview").style.display = "none";
-
-          var matches = findMatches(item, 3);
-          if(matches.length){
-            showMsg("Posted! We also found " + matches.length + " possible match" + (matches.length > 1 ? "es" : "") + " already on the board — see the matches panel.", true);
-            showMatches(item, matches, "Good news — possible matches found");
-            $("matchPanel").scrollIntoView({ behavior:"smooth", block:"center" });
-          } else {
-            showMsg("Posted to the board. If a matching " + (postType === "lost" ? "found" : "lost") + " post appears, search your item name to see it matched.", true);
-            toast("Your " + postType.toUpperCase() + " post is live on the board.");
+          if(!itemsCol){
+            showMsg("Not connected to Firebase yet — wait for the “Live • Firebase Connected” status above, then try again.", false);
+            return;
           }
-          setTimeout(function(){ flashId = null; }, 1800);
+
+          var btn = $("submitBtn");
+          btn.disabled = true;
+          btn.textContent = "Posting…";
+          var postedType = postType;
+          var data = {
+            type: postType, title: title, category: category, place: place, date: date,
+            desc: desc, name: name, contact: contact, photo: "", resolved: false,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+          };
+          var photoNote = "";
+
+          function savePost(){
+            itemsCol.add(data).then(function(ref){
+              btn.disabled = false;
+              btn.textContent = postType === "lost" ? "Post as LOST" : "Post as FOUND";
+              var item = { id: ref.id, type: data.type, title: data.title, category: data.category, place: data.place, date: data.date, desc: data.desc, name: data.name, contact: data.contact, photo: data.photo || null, resolved: false, createdAt: Date.now() };
+              flashId = ref.id;
+              render();
+
+              /* Reset form (keep name/contact for fast second post) */
+              $("fTitle").value = ""; $("fCategory").value = ""; $("fPlace").value = ""; $("fDesc").value = "";
+              photoData = null; photoFile = null; fileInput.value = ""; $("photoPreview").style.display = "none";
+
+              var matches = findMatches(item, 3);
+              if(matches.length){
+                showMsg("Posted! We also found " + matches.length + " possible match" + (matches.length > 1 ? "es" : "") + " already on the board — see the matches panel." + photoNote, true);
+                showMatches(item, matches, "Good news — possible matches found");
+                $("matchPanel").scrollIntoView({ behavior:"smooth", block:"center" });
+              } else {
+                showMsg("Posted to the board — it is now visible to everyone. If a matching " + (postedType === "lost" ? "found" : "lost") + " post appears, search your item name to see it matched." + photoNote, true);
+                toast("Your " + postedType.toUpperCase() + " post is live on the board.");
+              }
+              setTimeout(function(){ flashId = null; render(); }, 1800);
+            }).catch(function(err){
+              btn.disabled = false;
+              btn.textContent = postType === "lost" ? "Post as LOST" : "Post as FOUND";
+              showMsg("Could not save your post to Firebase: " + err.message, false);
+            });
+          }
+
+          if(photoFile){
+            btn.textContent = "Uploading photo…";
+            var safeName = String(photoFile.name || "photo").replace(/[^a-zA-Z0-9._-]/g, "_");
+            storage.ref("lostItems/" + Date.now() + "-" + safeName).put(photoFile)
+              .then(function(snap){ return snap.ref.getDownloadURL(); })
+              .then(function(url){
+                data.photo = url;
+                btn.textContent = "Posting…";
+                savePost();
+              })
+              .catch(function(){
+                /* Storage not enabled / upload failed — save the post without the photo, never fail the post */
+                photoNote = " Note: the photo could not be uploaded (Firebase Storage may not be enabled for this project), so the post was saved without the photo.";
+                btn.textContent = "Posting…";
+                savePost();
+              });
+          } else {
+            savePost();
+          }
         });
 
         /* ---------- Board controls ---------- */
@@ -749,7 +836,7 @@
         document.addEventListener("click", function(e){
           var btn = e.target.closest ? e.target.closest("[data-act]") : null;
           if(!btn) return;
-          var id = +btn.getAttribute("data-id");
+          var id = btn.getAttribute("data-id");
           var act = btn.getAttribute("data-act");
           var item = null;
           for(var i=0;i<items.length;i++){ if(items[i].id === id){ item = items[i]; break; } }
@@ -778,11 +865,36 @@
             $("matchPanel").scrollIntoView({ behavior:"smooth", block:"center" });
           }
           if(act === "resolve"){
-            item.resolved = true;
-            render();
-            toast("Marked as reunited. One more thing back with its owner.");
+            if(!itemsCol){ toast("Not connected to Firebase — cannot update this post right now."); return; }
+            itemsCol.doc(item.id).update({ resolved: true }).then(function(){
+              toast("Marked as reunited. One more thing back with its owner.");
+            }).catch(function(err){
+              toast("Could not update this post in Firebase: " + err.message);
+            });
           }
         });
+
+        /* ---------- Live board: real-time listener on Firestore ---------- */
+        if(itemsCol){
+          itemsCol.orderBy("createdAt", "desc").onSnapshot(function(snap){
+            var loaded = [];
+            snap.forEach(function(doc){
+              var d = doc.data();
+              loaded.push({
+                id: doc.id,
+                type: d.type, title: d.title, category: d.category, place: d.place,
+                date: d.date, desc: d.desc || "", name: d.name, contact: d.contact,
+                photo: d.photo || null, resolved: !!d.resolved,
+                createdAt: (d.createdAt && d.createdAt.toMillis) ? d.createdAt.toMillis() : Date.now()
+              });
+            });
+            items = loaded;
+            setStatus("live", "Live • Firebase Connected");
+            render();
+          }, function(err){
+            setStatus("error", "Could not connect to Firebase — " + err.message + " Reload the page to try again.");
+          });
+        }
 
         /* ---------- Init ---------- */
         var today = new Date();
