@@ -459,7 +459,6 @@
 
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
     <script>
       (function(){
         "use strict";
@@ -484,7 +483,7 @@
         var ICON_PIN = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>';
         var ICON_CAL = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="17" rx="2"/><path d="M8 2.5v4M16 2.5v4M3 10h18"/></svg>';
 
-        /* ---------- Firebase backend (Cloud Firestore + Storage) ---------- */
+        /* ---------- Firebase backend (Cloud Firestore) ---------- */
         var firebaseConfig = {
           apiKey: "AIzaSyB4ffh7rrqSOI5bYY99aQqBEQ9GCZVl0lo",
           authDomain: "stufffound-lost.firebaseapp.com",
@@ -494,7 +493,7 @@
           messagingSenderId: "314207572540",
           appId: "1:314207572540:web:6984033c3ef4d0cb536939"
         };
-        var db = null, storage = null, itemsCol = null;
+        var db = null, itemsCol = null;
         function setStatus(state, text){
           var el = $("fbStatus");
           el.className = "fb-status" + (state ? " " + state : "");
@@ -504,7 +503,6 @@
           if(typeof firebase === "undefined") throw new Error("Firebase SDK did not load");
           firebase.initializeApp(firebaseConfig);
           db = firebase.firestore();
-          storage = firebase.storage();
           itemsCol = db.collection("lostItems");
         } catch(err) {
           setStatus("error", "Could not connect to Firebase — check your internet connection and reload the page.");
@@ -516,7 +514,6 @@
         /* ---------- State ---------- */
         var postType = "lost";
         var photoData = null;
-        var photoFile = null;
         var filterType = "all";
         var flashId = null;
 
@@ -693,24 +690,59 @@
           });
         });
 
-        /* ---------- Photo upload ---------- */
+        /* ---------- Photo: compress in the browser, store as data URL in Firestore ---------- */
+        var MAX_PHOTO_BYTES = 700 * 1024;
+        function dataUrlSize(dataUrl){
+          var comma = dataUrl.indexOf(",");
+          var b64 = comma >= 0 ? dataUrl.slice(comma + 1) : dataUrl;
+          return Math.floor(b64.length * 3 / 4);
+        }
+        function compressPhoto(file, done){
+          var url = URL.createObjectURL(file);
+          var img = new Image();
+          img.onload = function(){
+            URL.revokeObjectURL(url);
+            var w = img.naturalWidth || img.width;
+            var h = img.naturalHeight || img.height;
+            if(!w || !h){ done(null); return; }
+            var maxSide = 800;
+            var scale = Math.min(1, maxSide / Math.max(w, h));
+            var cw = Math.max(1, Math.round(w * scale));
+            var ch = Math.max(1, Math.round(h * scale));
+            var canvas = document.createElement("canvas");
+            canvas.width = cw;
+            canvas.height = ch;
+            var ctx = canvas.getContext("2d");
+            if(!ctx){ done(null); return; }
+            ctx.drawImage(img, 0, 0, cw, ch);
+            var out = null;
+            try { out = canvas.toDataURL("image/jpeg", 0.7); } catch(e){ out = null; }
+            done(out);
+          };
+          img.onerror = function(){
+            URL.revokeObjectURL(url);
+            done(null);
+          };
+          img.src = url;
+        }
         var fileInput = $("fPhoto");
         fileInput.addEventListener("change", function(){
           var f = fileInput.files && fileInput.files[0];
           if(!f) return;
           if(!/^image\//.test(f.type)){ showMsg("That file is not an image. Please pick a photo.", false); return; }
-          photoFile = f;
-          var reader = new FileReader();
-          reader.onload = function(){
-            photoData = reader.result;
+          compressPhoto(f, function(dataUrl){
+            if(!dataUrl){
+              photoData = null;
+              showMsg("That photo could not be read. Please try another photo.", false);
+              return;
+            }
+            photoData = dataUrl;
             $("photoImg").src = photoData;
             $("photoPreview").style.display = "block";
-          };
-          reader.readAsDataURL(f);
+          });
         });
         $("photoRemove").addEventListener("click", function(){
           photoData = null;
-          photoFile = null;
           fileInput.value = "";
           $("photoPreview").style.display = "none";
         });
@@ -762,7 +794,7 @@
 
               /* Reset form (keep name/contact for fast second post) */
               $("fTitle").value = ""; $("fCategory").value = ""; $("fPlace").value = ""; $("fDesc").value = "";
-              photoData = null; photoFile = null; fileInput.value = ""; $("photoPreview").style.display = "none";
+              photoData = null; fileInput.value = ""; $("photoPreview").style.display = "none";
 
               var matches = findMatches(item, 3);
               if(matches.length){
@@ -781,25 +813,15 @@
             });
           }
 
-          if(photoFile){
-            btn.textContent = "Uploading photo…";
-            var safeName = String(photoFile.name || "photo").replace(/[^a-zA-Z0-9._-]/g, "_");
-            storage.ref("lostItems/" + Date.now() + "-" + safeName).put(photoFile)
-              .then(function(snap){ return snap.ref.getDownloadURL(); })
-              .then(function(url){
-                data.photo = url;
-                btn.textContent = "Posting…";
-                savePost();
-              })
-              .catch(function(){
-                /* Storage not enabled / upload failed — save the post without the photo, never fail the post */
-                photoNote = " Note: the photo could not be uploaded (Firebase Storage may not be enabled for this project), so the post was saved without the photo.";
-                btn.textContent = "Posting…";
-                savePost();
-              });
-          } else {
-            savePost();
+          if(photoData){
+            if(dataUrlSize(photoData) > MAX_PHOTO_BYTES){
+              photoNote = " Note: the photo was too large, so the post was saved without the photo.";
+              data.photo = "";
+            } else {
+              data.photo = photoData;
+            }
           }
+          savePost();
         });
 
         /* ---------- Board controls ---------- */
