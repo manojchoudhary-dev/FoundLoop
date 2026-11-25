@@ -3,65 +3,43 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <meta name="color-scheme" content="light dark" />
+    <meta name="color-scheme" content="light" />
     <link rel="icon" href="data:," />
     <title>Campus Lost &amp; Found</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700;9..40,900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700;9..40,900&family=DM+Mono:wght@400;500&family=Caveat:wght@600;700&display=swap" rel="stylesheet" />
     <style>
       :root{
-        --bg:#f4f1ea;
-        --bg-2:#ece7db;
-        --surface:#fffdf8;
-        --surface-2:#f8f4ea;
-        --ink:#1a1f1c;
-        --ink-2:#4a524d;
-        --ink-3:#7a837d;
-        --line:#ddd5c3;
-        --line-strong:#c9bfa4;
-        --teal:#0e6b5e;
-        --teal-dark:#084c42;
-        --teal-tint:#dff0ea;
-        --rust:#b23c17;
-        --rust-tint:#fbe7dd;
-        --amber:#b97e10;
-        --amber-tint:#fdf0d0;
-        --amber-strong:#e9a820;
-        --shadow:0 1px 2px rgba(26,31,28,.06),0 8px 24px rgba(26,31,28,.07);
-        --shadow-lg:0 2px 4px rgba(26,31,28,.08),0 18px 40px rgba(26,31,28,.13);
-        --radius:16px;
-      }
-      @media (prefers-color-scheme: dark){
-        :root{
-          --bg:#121613;
-          --bg-2:#171c18;
-          --surface:#1c211d;
-          --surface-2:#232923;
-          --ink:#eef2ec;
-          --ink-2:#b9c2b8;
-          --ink-3:#8b968c;
-          --line:#2e362f;
-          --line-strong:#414d42;
-          --teal:#3ec9b2;
-          --teal-dark:#8fe3d2;
-          --teal-tint:#123a33;
-          --rust:#ff9a76;
-          --rust-tint:#40241a;
-          --amber:#f2c14e;
-          --amber-tint:#3d3011;
-          --amber-strong:#f2c14e;
-          --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 24px rgba(0,0,0,.35);
-          --shadow-lg:0 2px 4px rgba(0,0,0,.5),0 18px 40px rgba(0,0,0,.45);
-        }
+        color-scheme:light;
+        --bg:#e9dcbc;
+        --bg-2:#dfcda1;
+        --surface:#fffaf0;
+        --surface-2:#f6ecd4;
+        --ink:#3b2f21;
+        --ink-2:#5f4f38;
+        --ink-3:#93805f;
+        --line:#dcc493;
+        --line-strong:#bfa26a;
+        --teal:#2e7d4f;
+        --teal-dark:#1e5c38;
+        --teal-tint:#e2efdb;
+        --rust:#b3402a;
+        --rust-tint:#f8e3d3;
+        --amber:#a86e0c;
+        --amber-tint:#f7ead0;
+        --amber-strong:#d99a16;
+        --shadow:0 1px 2px rgba(90,70,30,.14),0 10px 22px rgba(90,70,30,.16);
+        --shadow-lg:0 2px 4px rgba(90,70,30,.16),0 18px 36px rgba(90,70,30,.22);
+        --radius:8px;
       }
       *{box-sizing:border-box}
       html{scroll-behavior:smooth}
       body{
         margin:0;
         background:
-          radial-gradient(900px 420px at 85% -60px, color-mix(in srgb, var(--amber-strong) 14%, transparent), transparent 65%),
-          radial-gradient(800px 500px at -10% 30%, color-mix(in srgb, var(--teal) 10%, transparent), transparent 60%),
+          radial-gradient(rgba(120,90,40,.15) 1.2px, transparent 1.4px) 0 0/22px 22px,
+          radial-gradient(rgba(120,90,40,.09) 1.2px, transparent 1.4px) 11px 11px/22px 22px,
           var(--bg);
         color:var(--ink);
         font-family:"DM Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
@@ -81,11 +59,11 @@
       header.hero{padding:34px 0 8px}
       .hero-top{display:flex;flex-wrap:wrap;gap:22px;align-items:flex-end;justify-content:space-between}
       .hero h1{
-        font-family:"DM Serif Display", Georgia, serif;
-        font-weight:400;
-        font-size:clamp(2.3rem,6vw,3.6rem);
+        font-family:"Caveat", cursive;
+        font-weight:700;
+        font-size:clamp(3.1rem,7.5vw,4.6rem);
         line-height:1.02;
-        letter-spacing:-.01em;
+        letter-spacing:0;
         margin:0 0 10px;
       }
       .hero h1 .amp{color:var(--teal);font-style:italic}
@@ -123,11 +101,12 @@
       .panel{
         background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
         box-shadow:var(--shadow);padding:20px;
+        background-image:linear-gradient(rgba(120,90,40,.05) 1px, transparent 1px);background-size:100% 26px;
       }
       .panel.sticky{position:sticky;top:16px}
       @media (max-width:920px){.panel.sticky{position:static}}
       .panel h2{
-        font-family:"DM Serif Display", Georgia, serif;font-weight:400;font-size:1.45rem;margin:0 0 4px;
+        font-family:"Caveat", cursive;font-weight:700;font-size:1.9rem;margin:0 0 4px;
       }
       .panel .sub{margin:0 0 16px;color:var(--ink-2);font-size:.92rem}
 
@@ -141,10 +120,6 @@
       .type-toggle button[aria-pressed="true"]{color:#fff;border-color:transparent}
       .type-toggle button[data-type="lost"][aria-pressed="true"]{background:var(--rust);color:#fff}
       .type-toggle button[data-type="found"][aria-pressed="true"]{background:var(--teal);color:#fff}
-      @media (prefers-color-scheme: dark){
-        .type-toggle button[data-type="lost"][aria-pressed="true"]{background:#8a3b21}
-        .type-toggle button[data-type="found"][aria-pressed="true"]{background:#14584c}
-      }
 
       .field{margin-bottom:13px}
       .field label{display:block;font-size:.82rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-2);margin-bottom:6px}
@@ -186,7 +161,7 @@
 
       /* ---------- Board ---------- */
       .board-head{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;margin-bottom:6px}
-      .board-head h2{font-family:"DM Serif Display", Georgia, serif;font-weight:400;font-size:1.6rem;margin:0}
+      .board-head h2{font-family:"Caveat", cursive;font-weight:700;font-size:1.9rem;margin:0}
       .board-head .count{color:var(--ink-3);font-size:.9rem;font-weight:600}
 
       .searchbar{
@@ -239,11 +214,19 @@
       /* Cards */
       .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(258px,1fr));gap:14px}
       .card{
-        background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+        background:var(--surface);border:1px solid var(--line-strong);border-radius:var(--radius);
         overflow:hidden;box-shadow:var(--shadow);display:flex;flex-direction:column;
         transition:box-shadow .15s, transform .15s;
       }
-      .card:hover{box-shadow:var(--shadow-lg);transform:translateY(-2px)}
+      .grid .card:nth-child(odd){transform:rotate(-.7deg)}
+      .grid .card:nth-child(even){transform:rotate(.6deg)}
+      .card:hover{box-shadow:var(--shadow-lg);transform:rotate(0) translateY(-2px)}
+      .card-media::before{
+        content:"";position:absolute;top:7px;left:50%;transform:translateX(-50%);z-index:3;
+        width:17px;height:17px;border-radius:50%;
+        background:radial-gradient(circle at 35% 30%, #ff9a86, #c22e1c 72%);
+        box-shadow:0 2px 4px rgba(60,30,10,.45), inset 0 -2px 3px rgba(0,0,0,.25);
+      }
       .card.flash{animation:flash 1.6s ease}
       @keyframes flash{0%,60%{box-shadow:0 0 0 3px var(--amber-strong), var(--shadow-lg)}100%{box-shadow:var(--shadow)}}
       @media (prefers-reduced-motion: reduce){.card.flash{animation:none}.card:hover{transform:none}.submit-btn:hover{transform:none}html{scroll-behavior:auto}}
@@ -253,10 +236,9 @@
       .card-media .art svg{width:56px;height:56px;opacity:.9}
       .badge{
         position:absolute;top:10px;left:10px;font-size:.74rem;font-weight:900;letter-spacing:.07em;
-        text-transform:uppercase;border-radius:999px;padding:5px 11px;color:#fff;
+        text-transform:uppercase;border-radius:999px;padding:5px 11px;color:#fff;transform:rotate(-2deg);
       }
       .badge.lost{background:var(--rust)} .badge.found{background:var(--teal)}
-      @media (prefers-color-scheme: dark){.badge.lost{background:#8a3b21}.badge.found{background:#14584c}}
       .badge.resolved{background:#5b655c;top:auto;bottom:10px;left:10px}
       .card-body{padding:14px 15px 15px;display:flex;flex-direction:column;gap:7px;flex:1}
       .card-body h3{margin:0;font-size:1.08rem;font-weight:900;line-height:1.25;letter-spacing:-.01em}
@@ -450,8 +432,8 @@
 
           <div class="grid" id="grid"></div>
           <div class="empty" id="emptyState">
-            <b>Nothing on the board matches that.</b>
-            Try a shorter keyword, or post the item &mdash; the owner may be searching too.
+            <b id="emptyTitle">No items yet &mdash; be the first to post.</b>
+            <span id="emptyText">Lost something, or found something that isn&rsquo;t yours? Post it using the form and it will appear here on the board.</span>
           </div>
         </section>
       </div>
@@ -488,18 +470,9 @@
         var ICON_PIN = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>';
         var ICON_CAL = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="17" rx="2"/><path d="M8 2.5v4M16 2.5v4M3 10h18"/></svg>';
 
-        /* ---------- Seed listings (sample board for the demo) ---------- */
-        var items = [
-          { id:1, type:"lost",  title:"Casio Calculator fx-991", category:"Calculator / Stationery", place:"Central Library, Reading Hall", date:"2026-11-24", desc:"Black Casio with a small name sticker on the back cover. Needed for the end-term exams.", name:"Aarav S.", contact:"Room 214, Hostel Block A", photo:null, resolved:false },
-          { id:2, type:"found", title:"Casio Calculator", category:"Calculator / Stationery", place:"Physics Lab, Block C", date:"2026-11-25", desc:"Found on bench 4 after the morning practical. Black body, solar panel on top.", name:"Priya K.", contact:"CSE Section 02 — ask at Physics Lab desk", photo:null, resolved:false },
-          { id:3, type:"lost",  title:"Blue Water Bottle", category:"Bottle / Lunchbox", place:"Lecture Hall LH-2", date:"2026-11-23", desc:"Steel bottle, sky blue, dent near the base. Left it under the seat after the last lecture.", name:"Rohan M.", contact:"WhatsApp — ask CR, CSE Sec 02", photo:null, resolved:false },
-          { id:4, type:"found", title:"Steel Water Bottle (Blue)", category:"Bottle / Lunchbox", place:"Canteen", date:"2026-11-25", desc:"Blue steel bottle picked up from a canteen table at lunch. Kept safely with the canteen counter.", name:"Canteen Counter", contact:"Collect from the canteen counter", photo:null, resolved:false },
-          { id:5, type:"lost",  title:"College ID Card", category:"ID Card / Documents", place:"Main Gate", date:"2026-11-25", desc:"ID card in a transparent holder with a blue lanyard. Dropped somewhere between the gate and C-Block.", name:"Sneha R.", contact:"Room 108, Girls Hostel", photo:null, resolved:false },
-          { id:6, type:"found", title:"Brown Leather Wallet", category:"Wallet / Money", place:"Library Steps", date:"2026-11-24", desc:"Brown wallet found on the library steps. Has cards inside — owner can describe them to claim it.", name:"Kabir T.", contact:"Handed to Library Help Desk", photo:null, resolved:false },
-          { id:7, type:"lost",  title:"Hostel Room Keys", category:"Keys", place:"Playground", date:"2026-11-22", desc:"Two keys on a ring with a small metal football keychain. Lost during the evening football game.", name:"Dev P.", contact:"Room 312, Hostel Block B", photo:null, resolved:false },
-          { id:8, type:"found", title:"Black Umbrella", category:"Clothing / Umbrella", place:"Bus Stop", date:"2026-11-23", desc:"Full-size black umbrella left at the campus bus stop. Slightly bent rib, works fine.", name:"Isha V.", contact:"Security Desk, Main Gate", photo:null, resolved:false }
-        ];
-        var nextId = 9;
+        /* ---------- Board items (starts empty; posts are added in this session) ---------- */
+        var items = [];
+        var nextId = 1;
 
         /* ---------- State ---------- */
         var postType = "lost";
@@ -597,7 +570,16 @@
           });
           visible.sort(function(a,b){ return b.id - a.id; });
 
-          $("boardCount").textContent = visible.length + (visible.length === 1 ? " listing" : " listings") + " · sample posts included for demo";
+          $("boardCount").textContent = visible.length + (visible.length === 1 ? " listing" : " listings");
+          if(visible.length === 0){
+            if(items.length === 0){
+              $("emptyTitle").textContent = "No items yet — be the first to post.";
+              $("emptyText").textContent = "Lost something, or found something that isn’t yours? Post it using the form and it will appear here on the board.";
+            } else {
+              $("emptyTitle").textContent = "Nothing on the board matches that.";
+              $("emptyText").textContent = "Try a shorter keyword, or post the item — the owner may be searching too.";
+            }
+          }
           $("emptyState").classList.toggle("show", visible.length === 0);
 
           $("grid").innerHTML = visible.map(function(it){
