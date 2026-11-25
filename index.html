@@ -78,6 +78,74 @@
       .fb-status.live .dot{background:var(--teal)}
       .fb-status.error{color:var(--rust);border-color:var(--rust)}
       .fb-status.error .dot{background:var(--rust)}
+
+      /* ---------- Auth ---------- */
+      .auth-box{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:12px}
+      .signin-btn{
+        display:inline-flex;align-items:center;gap:9px;background:var(--surface);
+        border:1px solid var(--line-strong);border-radius:999px;padding:8px 16px 8px 12px;
+        font-weight:800;font-size:.92rem;color:var(--ink);box-shadow:var(--shadow);min-height:42px;
+      }
+      .signin-btn:hover{border-color:var(--teal)}
+      .signin-btn svg{flex:0 0 auto}
+      [hidden]{display:none !important}
+      .user-chip{
+        display:inline-flex;align-items:center;gap:9px;background:var(--surface);
+        border:1px solid var(--line);border-radius:999px;padding:5px 6px 5px 12px;
+        font-size:.9rem;font-weight:700;color:var(--ink-2);box-shadow:var(--shadow);
+      }
+      .user-chip[hidden]{display:none !important}
+      .user-chip .avatar-fallback{
+        width:26px;height:26px;border-radius:50%;background:var(--teal);color:#fff;
+        display:grid;place-items:center;font-size:.82rem;font-weight:900;flex:0 0 auto;
+      }
+      /* Email + password auth */
+      .email-auth{
+        margin-top:12px;max-width:430px;background:var(--surface);border:1px solid var(--line);
+        border-radius:12px;padding:14px;box-shadow:var(--shadow);
+      }
+      .email-auth[hidden]{display:none !important}
+      .email-auth .ea-title{font-weight:900;font-size:.92rem;margin:0 0 2px}
+      .email-auth .ea-sub{margin:0 0 10px;font-size:.85rem;color:var(--ink-2)}
+      .email-auth .ea-fields{display:grid;gap:8px}
+      .email-auth input[type="email"],.email-auth input[type="password"]{
+        width:100%;background:var(--surface-2);border:1px solid var(--line-strong);border-radius:10px;
+        padding:10px 12px;min-height:44px;
+      }
+      .email-auth .ea-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+      .email-auth .ea-signin{
+        border:0;background:var(--ink);color:var(--bg);border-radius:10px;
+        padding:9px 16px;font-weight:900;font-size:.92rem;min-height:42px;
+      }
+      .email-auth .ea-signup{
+        border:1px solid var(--line-strong);background:var(--surface-2);color:var(--ink);
+        border-radius:10px;padding:9px 14px;font-weight:800;font-size:.92rem;min-height:42px;
+      }
+      .email-auth .ea-signup:hover{border-color:var(--teal)}
+      .auth-msg{display:none;margin:10px 0 0;border-radius:10px;padding:10px 12px;font-size:.9rem;font-weight:600}
+      .auth-msg.ok{display:block;background:var(--teal-tint);color:var(--teal-dark)}
+      .auth-msg.err{display:block;background:var(--rust-tint);color:var(--rust)}
+      .auth-divider{
+        display:flex;align-items:center;gap:10px;margin:14px 0 0;max-width:430px;
+        color:var(--ink-3);font-size:.8rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;
+      }
+      .auth-divider::before,.auth-divider::after{content:"";flex:1;border-top:1px dashed var(--line-strong)}
+      .auth-divider[hidden]{display:none !important}
+      .user-chip b{color:var(--ink)}
+      .user-chip img{width:26px;height:26px;border-radius:50%;object-fit:cover}
+      .signout-btn{
+        border:1px solid var(--line-strong);background:var(--surface-2);border-radius:999px;
+        padding:5px 12px;font-weight:700;font-size:.84rem;min-height:32px;color:var(--ink-2);
+      }
+      .signout-btn:hover{border-color:var(--rust);color:var(--rust)}
+      .auth-gate{
+        border:1.5px dashed var(--line-strong);border-radius:12px;background:var(--surface-2);
+        padding:18px 16px;text-align:center;margin-bottom:4px;
+      }
+      .auth-gate b{display:block;font-size:1.02rem;margin-bottom:4px}
+      .auth-gate p{margin:0 0 12px;color:var(--ink-2);font-size:.92rem}
+      .auth-gate .signin-btn{margin:0 auto}
+      .owner-note{font-size:.8rem;color:var(--ink-3);align-self:center}
       .stats{display:flex;gap:10px;flex-wrap:wrap}
       .stat{
         background:var(--surface);border:1px solid var(--line);border-radius:14px;
@@ -293,6 +361,34 @@
             <h1>Campus Lost <span class="amp">&amp;</span> Found</h1>
             <p class="lede">Lost your calculator in the library? Found someone&rsquo;s ID card at the gate? <strong>Post it here</strong> &mdash; the board matches lost and found posts by keyword, so things find their way back faster.</p>
             <p class="fb-status" id="fbStatus" role="status"><span class="dot"></span><span id="fbStatusText">Connecting to Firebase&hellip;</span></p>
+            <div class="auth-box" id="authBox">
+              <button type="button" class="signin-btn" id="signInBtn">
+                <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.1H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.2 8 3l5.7-5.7C34.3 6.1 29.3 4 24 4 13 4 4 13 4 24s9 20 20 20 20-9 20-20c0-1.3-.1-2.6-.4-3.9z"/><path fill="#FF3D00" d="m6.3 14.7 6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.9 1.2 8 3l5.7-5.7C34.3 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.1H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C36.9 39.2 44 34 44 24c0-1.3-.1-2.6-.4-3.9z"/></svg>
+                Sign in with Google
+              </button>
+              <span class="user-chip" id="userChip" hidden>
+                <img id="userPhoto" alt="" hidden />
+                <span class="avatar-fallback" id="userAvatarFallback" hidden aria-hidden="true"></span>
+                <span>Signed in as <b id="userName"></b></span>
+                <button type="button" class="signout-btn" id="signOutBtn">Sign out</button>
+              </span>
+            </div>
+            <div class="auth-divider" id="authDivider"><span>or use email</span></div>
+            <div class="email-auth" id="emailAuthBox">
+              <p class="ea-title">Sign in with email</p>
+              <p class="ea-sub">Already have an account? Sign in below. New here? Tap <b>Create account</b> instead &mdash; same email and password.</p>
+              <form id="emailAuthForm" novalidate>
+                <div class="ea-fields">
+                  <input type="email" id="authEmail" placeholder="Email address" autocomplete="email" aria-label="Email address" required />
+                  <input type="password" id="authPassword" placeholder="Password (at least 6 characters)" autocomplete="current-password" aria-label="Password" required />
+                </div>
+                <div class="ea-actions">
+                  <button type="submit" class="ea-signin" id="emailSignInBtn">Sign in</button>
+                  <button type="button" class="ea-signup" id="emailSignUpBtn">Create account</button>
+                </div>
+                <p class="auth-msg" id="emailAuthMsg" role="status" aria-live="polite"></p>
+              </form>
+            </div>
           </div>
           <div class="stats" aria-label="Board statistics">
             <div class="stat lost"><b id="statLost">0</b><span>Still lost</span></div>
@@ -313,7 +409,31 @@
           <h2 id="postTitle">Post an item</h2>
           <p class="sub">Takes 30 seconds. A photo helps the owner recognise it instantly.</p>
 
-          <form id="postForm" novalidate>
+          <div class="auth-gate" id="authGate">
+            <b>Sign in to post an item</b>
+            <p>Posting needs a sign-in &mdash; Google or email &mdash; so every post is tied to its owner, and only the owner can mark it reunited later.</p>
+            <button type="button" class="signin-btn" id="gateSignInBtn">
+              <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.1H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.2 8 3l5.7-5.7C34.3 6.1 29.3 4 24 4 13 4 4 13 4 24s9 20 20 20 20-9 20-20c0-1.3-.1-2.6-.4-3.9z"/><path fill="#FF3D00" d="m6.3 14.7 6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.9 1.2 8 3l5.7-5.7C34.3 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.1H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C36.9 39.2 44 34 44 24c0-1.3-.1-2.6-.4-3.9z"/></svg>
+              Sign in with Google
+            </button>
+            <div class="email-auth" style="margin:14px auto 0;text-align:left">
+              <p class="ea-title">Or sign in with email</p>
+              <p class="ea-sub">New here? Tap <b>Create account</b> &mdash; same email and password.</p>
+              <form id="gateEmailAuthForm" novalidate>
+                <div class="ea-fields">
+                  <input type="email" id="gateEmail" placeholder="Email address" autocomplete="email" aria-label="Email address" required />
+                  <input type="password" id="gatePassword" placeholder="Password (at least 6 characters)" autocomplete="current-password" aria-label="Password" required />
+                </div>
+                <div class="ea-actions">
+                  <button type="submit" class="ea-signin" id="gateEmailSignInBtn">Sign in</button>
+                  <button type="button" class="ea-signup" id="gateEmailSignUpBtn">Create account</button>
+                </div>
+                <p class="auth-msg" id="gateEmailAuthMsg" role="status" aria-live="polite"></p>
+              </form>
+            </div>
+          </div>
+
+          <form id="postForm" novalidate hidden>
             <div class="type-toggle" role="group" aria-label="Lost or found">
               <button type="button" data-type="lost" aria-pressed="true"><span class="dot"></span>I lost something</button>
               <button type="button" data-type="found" aria-pressed="false"><span class="dot"></span>I found something</button>
@@ -386,7 +506,8 @@
             <div class="field-row">
               <div class="field">
                 <label for="fName">Your name <span class="req">*</span></label>
-                <input type="text" id="fName" placeholder="e.g. Aarav S." maxlength="40" required />
+                <input type="text" id="fName" placeholder="Filled from your account" maxlength="40" required readonly />
+                <div class="hint" id="fNameHint">Filled automatically from your signed-in account.</div>
               </div>
               <div class="field">
                 <label for="fContact">Contact <span class="req">*</span></label>
@@ -458,6 +579,7 @@
     <div class="toast" id="toast" role="status"></div>
 
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
     <script>
       (function(){
@@ -493,7 +615,8 @@
           messagingSenderId: "314207572540",
           appId: "1:314207572540:web:6984033c3ef4d0cb536939"
         };
-        var db = null, itemsCol = null;
+        var db = null, itemsCol = null, auth = null;
+        var currentUser = null;
         function setStatus(state, text){
           var el = $("fbStatus");
           el.className = "fb-status" + (state ? " " + state : "");
@@ -504,9 +627,160 @@
           firebase.initializeApp(firebaseConfig);
           db = firebase.firestore();
           itemsCol = db.collection("lostItems");
+          auth = firebase.auth();
         } catch(err) {
           setStatus("error", "Could not connect to Firebase — check your internet connection and reload the page.");
         }
+
+        /* ---------- Sign-in (Firebase Auth: Google first, then email + password) ---------- */
+        function nameFromEmail(email){
+          var local = String(email || "").split("@")[0] || "";
+          local = local.replace(/[._-]+/g, " ").trim();
+          if(!local) return "";
+          return local.replace(/\b\w/g, function(c){ return c.toUpperCase(); });
+        }
+        function applyAuthUI(){
+          var signedIn = !!currentUser;
+          $("signInBtn").style.display = signedIn ? "none" : "";
+          $("userChip").hidden = !signedIn;
+          if($("emailAuthBox")) $("emailAuthBox").hidden = signedIn;
+          if($("authDivider")) $("authDivider").hidden = signedIn;
+          $("authGate").style.display = signedIn ? "none" : "";
+          $("postForm").hidden = !signedIn;
+          if(signedIn){
+            var display = currentUser.displayName || currentUser.email || "Signed in";
+            $("userName").textContent = display;
+            var photo = $("userPhoto");
+            var fallback = $("userAvatarFallback");
+            if(currentUser.photoURL){
+              photo.src = currentUser.photoURL; photo.hidden = false;
+              if(fallback) fallback.hidden = true;
+            } else {
+              photo.hidden = true; photo.removeAttribute("src");
+              if(fallback){
+                fallback.textContent = (display.trim().charAt(0) || "U").toUpperCase();
+                fallback.hidden = false;
+              }
+            }
+            var nameInput = $("fName");
+            if(currentUser.displayName){
+              nameInput.value = currentUser.displayName;
+              nameInput.readOnly = true;
+              $("fNameHint").textContent = "Filled automatically from your signed-in account.";
+            } else {
+              /* Email accounts have no Google profile name — prefill from the
+                 email and let the student correct it before posting. */
+              if(!nameInput.value) nameInput.value = nameFromEmail(currentUser.email);
+              nameInput.readOnly = false;
+              $("fNameHint").textContent = "Taken from your email — edit it if it is not your name.";
+            }
+          }
+        }
+        function authErrorMessage(err, isSignUp){
+          var code = err && err.code ? err.code : "";
+          if(code === "auth/invalid-email") return "That email address doesn't look right. Check it and try again.";
+          if(code === "auth/missing-password") return "Please enter a password.";
+          if(code === "auth/weak-password") return "That password is too weak — use at least 6 characters.";
+          if(code === "auth/email-already-in-use") return "An account with this email already exists. Use Sign in with that email and password instead.";
+          if(code === "auth/user-not-found" || code === "auth/wrong-password" || code === "auth/invalid-credential" || code === "auth/invalid-login-credentials") return "Email or password is wrong. Check both and try again — or tap Create account if you are new here.";
+          if(code === "auth/user-disabled") return "This account has been disabled. Please contact support.";
+          if(code === "auth/too-many-requests") return "Too many tries. Please wait a little and try again.";
+          if(code === "auth/network-request-failed") return "Network problem — check your internet connection and try again.";
+          if(code === "auth/operation-not-allowed") return "Email + password sign-in is not switched on for this project yet. Please use Google sign-in, or enable Email/Password in Firebase Authentication.";
+          return (isSignUp ? "Could not create your account: " : "Sign-in failed: ") + (err && err.message ? err.message : "Something went wrong. Please try again.");
+        }
+        function setAuthMsg(el, msg, ok){
+          if(!el) return;
+          el.textContent = msg;
+          el.className = "auth-msg " + (ok ? "ok" : "err");
+        }
+        function emailSignIn(emailEl, passEl, msgEl, btns){
+          if(!auth){ setAuthMsg(msgEl, "Sign-in is not available right now — Firebase did not connect.", false); return; }
+          var email = (emailEl.value || "").trim();
+          var password = passEl.value || "";
+          if(!email || !password){ setAuthMsg(msgEl, "Please enter both your email and your password.", false); return; }
+          btns.forEach(function(b){ if(b) b.disabled = true; });
+          auth.signInWithEmailAndPassword(email, password).then(function(){
+            setAuthMsg(msgEl, "Signed in — welcome back!", true);
+            passEl.value = "";
+          }).catch(function(err){
+            setAuthMsg(msgEl, authErrorMessage(err, false), false);
+          }).then(function(){
+            btns.forEach(function(b){ if(b) b.disabled = false; });
+          });
+        }
+        function emailSignUp(emailEl, passEl, msgEl, btns){
+          if(!auth){ setAuthMsg(msgEl, "Sign-up is not available right now — Firebase did not connect.", false); return; }
+          var email = (emailEl.value || "").trim();
+          var password = passEl.value || "";
+          if(!email || !password){ setAuthMsg(msgEl, "Please enter an email and a password (at least 6 characters) to create your account.", false); return; }
+          if(password.length < 6){ setAuthMsg(msgEl, "That password is too weak — use at least 6 characters.", false); return; }
+          btns.forEach(function(b){ if(b) b.disabled = true; });
+          auth.createUserWithEmailAndPassword(email, password).then(function(cred){
+            var derived = nameFromEmail(email);
+            if(cred && cred.user && derived){
+              return cred.user.updateProfile({ displayName: derived }).catch(function(){});
+            }
+          }).then(function(){
+            setAuthMsg(msgEl, "Account created and signed in — you can post now.", true);
+            passEl.value = "";
+            /* Refresh the chip / name field now that a display name exists */
+            if(auth.currentUser){ currentUser = auth.currentUser; applyAuthUI(); render(); }
+          }).catch(function(err){
+            setAuthMsg(msgEl, authErrorMessage(err, true), false);
+          }).then(function(){
+            btns.forEach(function(b){ if(b) b.disabled = false; });
+          });
+        }
+        function signInWithGoogle(){
+          if(!auth){ toast("Sign-in is not available right now — Firebase did not connect."); return; }
+          var provider = new firebase.auth.GoogleAuthProvider();
+          auth.signInWithPopup(provider).catch(function(err){
+            if(err && (err.code === "auth/popup-blocked" || err.code === "auth/cancelled-popup-request")){
+              /* Popup blocked — fall back to a full-page redirect sign-in */
+              auth.signInWithRedirect(provider).catch(function(rerr){
+                toast("Could not start sign-in: " + rerr.message);
+              });
+            } else if(err && err.code !== "auth/popup-closed-by-user"){
+              toast("Sign-in failed: " + err.message);
+            }
+          });
+        }
+        if(auth){
+          /* Pick up the result when returning from a redirect sign-in */
+          auth.getRedirectResult().catch(function(err){
+            if(err && err.code !== "auth/no-current-user") toast("Sign-in failed: " + err.message);
+          });
+          auth.onAuthStateChanged(function(user){
+            currentUser = user || null;
+            applyAuthUI();
+            render();
+          });
+          $("signInBtn").addEventListener("click", signInWithGoogle);
+          $("gateSignInBtn").addEventListener("click", signInWithGoogle);
+          $("signOutBtn").addEventListener("click", function(){
+            auth.signOut().then(function(){ toast("Signed out."); });
+          });
+        } else {
+          $("signInBtn").addEventListener("click", signInWithGoogle);
+          $("gateSignInBtn").addEventListener("click", signInWithGoogle);
+        }
+        /* Email + password wiring (header form + post-form gate form) */
+        $("emailAuthForm").addEventListener("submit", function(e){
+          e.preventDefault();
+          emailSignIn($("authEmail"), $("authPassword"), $("emailAuthMsg"), [$("emailSignInBtn"), $("emailSignUpBtn")]);
+        });
+        $("emailSignUpBtn").addEventListener("click", function(){
+          emailSignUp($("authEmail"), $("authPassword"), $("emailAuthMsg"), [$("emailSignInBtn"), $("emailSignUpBtn")]);
+        });
+        $("gateEmailAuthForm").addEventListener("submit", function(e){
+          e.preventDefault();
+          emailSignIn($("gateEmail"), $("gatePassword"), $("gateEmailAuthMsg"), [$("gateEmailSignInBtn"), $("gateEmailSignUpBtn")]);
+        });
+        $("gateEmailSignUpBtn").addEventListener("click", function(){
+          emailSignUp($("gateEmail"), $("gatePassword"), $("gateEmailAuthMsg"), [$("gateEmailSignInBtn"), $("gateEmailSignUpBtn")]);
+        });
+        applyAuthUI();
 
         /* ---------- Board items (loaded live from Firestore; starts empty) ---------- */
         var items = [];
@@ -627,11 +901,14 @@
             var badgeTxt = it.type === "lost" ? "Lost" : "Found";
             var when = it.type === "lost" ? "Lost on " : "Found on ";
             var actions = "";
+            var isOwner = !!(currentUser && it.uid && it.uid === currentUser.uid);
             if(!it.resolved){
               actions =
                 '<button type="button" class="primary" data-act="contact" data-id="'+it.id+'">Show contact</button>' +
                 '<button type="button" data-act="match" data-id="'+it.id+'">Find matches</button>' +
-                '<button type="button" class="resolve" data-act="resolve" data-id="'+it.id+'">Mark reunited</button>';
+                (isOwner
+                  ? '<button type="button" class="resolve" data-act="resolve" data-id="'+it.id+'">Mark reunited</button>'
+                  : '<span class="owner-note">Only the uploader can mark this reunited</span>');
             } else {
               actions = '<button type="button" data-act="contact" data-id="'+it.id+'">Show contact</button>';
             }
@@ -756,16 +1033,20 @@
         /* ---------- Submit ---------- */
         $("postForm").addEventListener("submit", function(e){
           e.preventDefault();
+          if(!currentUser){
+            showMsg("Please sign in first — with Google or email — posting needs a signed-in account.", false);
+            return;
+          }
           var title = $("fTitle").value.trim();
           var category = $("fCategory").value;
           var date = $("fDate").value;
           var place = $("fPlace").value.trim();
           var desc = $("fDesc").value.trim();
-          var name = $("fName").value.trim();
+          var name = (currentUser.displayName || $("fName").value || "").trim();
           var contact = $("fContact").value.trim();
 
           if(!title || !category || !date || !place || !name || !contact){
-            showMsg("Please fill the starred fields — item name, category, date, place, your name and a contact.", false);
+            showMsg("Please fill the starred fields — item name, category, date, place and a contact.", false);
             return;
           }
           if(!itemsCol){
@@ -780,6 +1061,7 @@
           var data = {
             type: postType, title: title, category: category, place: place, date: date,
             desc: desc, name: name, contact: contact, photo: "", resolved: false,
+            uid: currentUser.uid, email: currentUser.email || "",
             createdAt: firebase.firestore.FieldValue.serverTimestamp()
           };
           var photoNote = "";
@@ -788,7 +1070,7 @@
             itemsCol.add(data).then(function(ref){
               btn.disabled = false;
               btn.textContent = postType === "lost" ? "Post as LOST" : "Post as FOUND";
-              var item = { id: ref.id, type: data.type, title: data.title, category: data.category, place: data.place, date: data.date, desc: data.desc, name: data.name, contact: data.contact, photo: data.photo || null, resolved: false, createdAt: Date.now() };
+              var item = { id: ref.id, type: data.type, title: data.title, category: data.category, place: data.place, date: data.date, desc: data.desc, name: data.name, contact: data.contact, uid: data.uid, email: data.email, photo: data.photo || null, resolved: false, createdAt: Date.now() };
               flashId = ref.id;
               render();
 
@@ -887,6 +1169,10 @@
             $("matchPanel").scrollIntoView({ behavior:"smooth", block:"center" });
           }
           if(act === "resolve"){
+            if(!currentUser || !item.uid || item.uid !== currentUser.uid){
+              toast("Only the person who posted this item can mark it reunited.");
+              return;
+            }
             if(!itemsCol){ toast("Not connected to Firebase — cannot update this post right now."); return; }
             itemsCol.doc(item.id).update({ resolved: true }).then(function(){
               toast("Marked as reunited. One more thing back with its owner.");
@@ -906,6 +1192,7 @@
                 id: doc.id,
                 type: d.type, title: d.title, category: d.category, place: d.place,
                 date: d.date, desc: d.desc || "", name: d.name, contact: d.contact,
+                uid: d.uid || null, email: d.email || "",
                 photo: d.photo || null, resolved: !!d.resolved,
                 createdAt: (d.createdAt && d.createdAt.toMillis) ? d.createdAt.toMillis() : Date.now()
               });
