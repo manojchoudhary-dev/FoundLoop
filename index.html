@@ -1,0 +1,814 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="light dark" />
+    <link rel="icon" href="data:," />
+    <title>Campus Lost &amp; Found</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700;9..40,900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+    <style>
+      :root{
+        --bg:#f4f1ea;
+        --bg-2:#ece7db;
+        --surface:#fffdf8;
+        --surface-2:#f8f4ea;
+        --ink:#1a1f1c;
+        --ink-2:#4a524d;
+        --ink-3:#7a837d;
+        --line:#ddd5c3;
+        --line-strong:#c9bfa4;
+        --teal:#0e6b5e;
+        --teal-dark:#084c42;
+        --teal-tint:#dff0ea;
+        --rust:#b23c17;
+        --rust-tint:#fbe7dd;
+        --amber:#b97e10;
+        --amber-tint:#fdf0d0;
+        --amber-strong:#e9a820;
+        --shadow:0 1px 2px rgba(26,31,28,.06),0 8px 24px rgba(26,31,28,.07);
+        --shadow-lg:0 2px 4px rgba(26,31,28,.08),0 18px 40px rgba(26,31,28,.13);
+        --radius:16px;
+      }
+      @media (prefers-color-scheme: dark){
+        :root{
+          --bg:#121613;
+          --bg-2:#171c18;
+          --surface:#1c211d;
+          --surface-2:#232923;
+          --ink:#eef2ec;
+          --ink-2:#b9c2b8;
+          --ink-3:#8b968c;
+          --line:#2e362f;
+          --line-strong:#414d42;
+          --teal:#3ec9b2;
+          --teal-dark:#8fe3d2;
+          --teal-tint:#123a33;
+          --rust:#ff9a76;
+          --rust-tint:#40241a;
+          --amber:#f2c14e;
+          --amber-tint:#3d3011;
+          --amber-strong:#f2c14e;
+          --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 24px rgba(0,0,0,.35);
+          --shadow-lg:0 2px 4px rgba(0,0,0,.5),0 18px 40px rgba(0,0,0,.45);
+        }
+      }
+      *{box-sizing:border-box}
+      html{scroll-behavior:smooth}
+      body{
+        margin:0;
+        background:
+          radial-gradient(900px 420px at 85% -60px, color-mix(in srgb, var(--amber-strong) 14%, transparent), transparent 65%),
+          radial-gradient(800px 500px at -10% 30%, color-mix(in srgb, var(--teal) 10%, transparent), transparent 60%),
+          var(--bg);
+        color:var(--ink);
+        font-family:"DM Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+        font-size:16px;
+        line-height:1.5;
+        -webkit-font-smoothing:antialiased;
+      }
+      button,[role="button"],select,summary,input:not([type="checkbox"],[type="radio"]){min-height:2.25rem}
+      button{font:inherit;cursor:pointer}
+      input,select,textarea{font:inherit;color:inherit}
+      img{max-width:100%;display:block}
+      :focus-visible{outline:3px solid color-mix(in srgb, var(--teal) 55%, transparent);outline-offset:2px;border-radius:6px}
+
+      .wrap{max-width:1180px;margin:0 auto;padding:0 18px 64px}
+
+      /* ---------- Header ---------- */
+      header.hero{padding:34px 0 8px}
+      .hero-top{display:flex;flex-wrap:wrap;gap:22px;align-items:flex-end;justify-content:space-between}
+      .hero h1{
+        font-family:"DM Serif Display", Georgia, serif;
+        font-weight:400;
+        font-size:clamp(2.3rem,6vw,3.6rem);
+        line-height:1.02;
+        letter-spacing:-.01em;
+        margin:0 0 10px;
+      }
+      .hero h1 .amp{color:var(--teal);font-style:italic}
+      .hero p.lede{margin:0;max-width:56ch;color:var(--ink-2);font-size:1.06rem}
+      .hero p.lede strong{color:var(--ink)}
+      .stats{display:flex;gap:10px;flex-wrap:wrap}
+      .stat{
+        background:var(--surface);border:1px solid var(--line);border-radius:14px;
+        padding:10px 16px 8px;min-width:104px;box-shadow:var(--shadow);
+      }
+      .stat b{display:block;font-size:1.55rem;line-height:1.1;font-weight:900;letter-spacing:-.02em}
+      .stat span{font-size:.78rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}
+      .stat.lost b{color:var(--rust)} .stat.found b{color:var(--teal)} .stat.done b{color:var(--amber)}
+
+      .how{
+        margin-top:22px;display:grid;grid-template-columns:repeat(3,1fr);gap:10px;
+      }
+      .how div{
+        display:flex;gap:10px;align-items:flex-start;background:var(--surface-2);
+        border:1px dashed var(--line-strong);border-radius:12px;padding:12px 14px;
+        font-size:.92rem;color:var(--ink-2);
+      }
+      .how b{color:var(--ink)}
+      .how .n{
+        flex:0 0 auto;width:26px;height:26px;border-radius:50%;background:var(--ink);color:var(--bg);
+        display:grid;place-items:center;font-weight:900;font-size:.85rem;margin-top:1px;
+      }
+      @media (max-width:760px){.how{grid-template-columns:1fr}}
+
+      /* ---------- Layout ---------- */
+      .layout{display:grid;grid-template-columns:380px 1fr;gap:22px;margin-top:26px;align-items:start}
+      @media (max-width:920px){.layout{grid-template-columns:1fr}}
+
+      /* ---------- Post form ---------- */
+      .panel{
+        background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+        box-shadow:var(--shadow);padding:20px;
+      }
+      .panel.sticky{position:sticky;top:16px}
+      @media (max-width:920px){.panel.sticky{position:static}}
+      .panel h2{
+        font-family:"DM Serif Display", Georgia, serif;font-weight:400;font-size:1.45rem;margin:0 0 4px;
+      }
+      .panel .sub{margin:0 0 16px;color:var(--ink-2);font-size:.92rem}
+
+      .type-toggle{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px}
+      .type-toggle button{
+        border:1.5px solid var(--line-strong);background:var(--surface-2);border-radius:12px;
+        padding:10px 8px;font-weight:900;font-size:.98rem;color:var(--ink-2);min-height:48px;
+        display:flex;align-items:center;justify-content:center;gap:8px;transition:all .15s;
+      }
+      .type-toggle button .dot{width:10px;height:10px;border-radius:50%;background:currentColor;opacity:.45}
+      .type-toggle button[aria-pressed="true"]{color:#fff;border-color:transparent}
+      .type-toggle button[data-type="lost"][aria-pressed="true"]{background:var(--rust);color:#fff}
+      .type-toggle button[data-type="found"][aria-pressed="true"]{background:var(--teal);color:#fff}
+      @media (prefers-color-scheme: dark){
+        .type-toggle button[data-type="lost"][aria-pressed="true"]{background:#8a3b21}
+        .type-toggle button[data-type="found"][aria-pressed="true"]{background:#14584c}
+      }
+
+      .field{margin-bottom:13px}
+      .field label{display:block;font-size:.82rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-2);margin-bottom:6px}
+      .field label .req{color:var(--rust)}
+      .field input[type="text"],.field input[type="date"],.field input[type="tel"],.field select,.field textarea{
+        width:100%;background:var(--surface-2);border:1px solid var(--line-strong);border-radius:10px;
+        padding:10px 12px;min-height:44px;
+      }
+      .field textarea{min-height:74px;resize:vertical}
+      .field-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+      @media (max-width:420px){.field-row{grid-template-columns:1fr}}
+      .hint{font-size:.8rem;color:var(--ink-3);margin-top:5px}
+
+      .photo-drop{
+        border:1.5px dashed var(--line-strong);border-radius:12px;background:var(--surface-2);
+        padding:14px;text-align:center;cursor:pointer;transition:border-color .15s;
+      }
+      .photo-drop:hover{border-color:var(--teal)}
+      .photo-drop input{display:block;width:100%;margin-top:10px;min-height:44px;font-size:.9rem;color:var(--ink-2)}
+      .photo-drop .pd-label{font-weight:700;font-size:.94rem}
+      .photo-drop .pd-sub{font-size:.82rem;color:var(--ink-3)}
+      .photo-preview{display:none;margin-top:10px;position:relative}
+      .photo-preview img{width:100%;height:150px;object-fit:cover;border-radius:10px;border:1px solid var(--line)}
+      .photo-preview button{
+        position:absolute;top:8px;right:8px;background:rgba(10,14,12,.78);color:#fff;border:0;
+        border-radius:999px;padding:6px 12px;font-size:.82rem;font-weight:700;min-height:36px;
+      }
+
+      .submit-btn{
+        width:100%;border:0;border-radius:12px;min-height:52px;font-weight:900;font-size:1.02rem;
+        background:var(--ink);color:var(--bg);letter-spacing:.01em;margin-top:4px;
+        transition:transform .12s, opacity .12s;
+      }
+      .submit-btn:hover{transform:translateY(-1px)}
+      .submit-btn:active{transform:translateY(0)}
+      .form-msg{display:none;margin-top:12px;border-radius:10px;padding:11px 13px;font-size:.92rem;font-weight:600}
+      .form-msg.ok{display:block;background:var(--teal-tint);color:var(--teal-dark)}
+      .form-msg.err{display:block;background:var(--rust-tint);color:var(--rust)}
+
+      /* ---------- Board ---------- */
+      .board-head{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;margin-bottom:6px}
+      .board-head h2{font-family:"DM Serif Display", Georgia, serif;font-weight:400;font-size:1.6rem;margin:0}
+      .board-head .count{color:var(--ink-3);font-size:.9rem;font-weight:600}
+
+      .searchbar{
+        display:flex;gap:8px;flex-wrap:wrap;background:var(--surface);border:1px solid var(--line);
+        border-radius:14px;padding:10px;box-shadow:var(--shadow);margin:12px 0 14px;
+      }
+      .search-wrap{flex:1 1 220px;position:relative}
+      .search-wrap svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--ink-3);pointer-events:none}
+      .search-wrap input{
+        width:100%;padding:10px 12px 10px 38px;min-height:46px;border:1px solid var(--line-strong);
+        border-radius:10px;background:var(--surface-2);
+      }
+      .searchbar select{
+        border:1px solid var(--line-strong);border-radius:10px;background:var(--surface-2);
+        padding:10px;min-height:46px;flex:0 1 auto;max-width:100%;
+      }
+      .pills{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+      .pill{
+        border:1px solid var(--line-strong);background:var(--surface);color:var(--ink-2);
+        border-radius:999px;padding:8px 14px;font-weight:700;font-size:.88rem;min-height:38px;
+      }
+      .pill[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+
+      /* Match panel */
+      .match-panel{
+        display:none;border:1.5px solid var(--amber-strong);background:var(--amber-tint);
+        border-radius:var(--radius);padding:16px 18px;margin-bottom:16px;
+      }
+      .match-panel.show{display:block}
+      .match-panel h3{margin:0 0 2px;font-size:1.05rem;font-weight:900;display:flex;align-items:center;gap:8px}
+      .match-panel p{margin:0 0 10px;font-size:.92rem;color:var(--ink-2)}
+      .match-list{display:grid;gap:8px}
+      .match-row{
+        display:flex;gap:12px;align-items:center;background:var(--surface);border:1px solid var(--line);
+        border-radius:12px;padding:10px 12px;flex-wrap:wrap;
+      }
+      .match-row .grow{flex:1 1 180px;min-width:0}
+      .match-row .t{font-weight:800}
+      .match-row .m{font-size:.85rem;color:var(--ink-2)}
+      .score{
+        flex:0 0 auto;font-family:"DM Mono",monospace;font-weight:500;font-size:.85rem;
+        background:var(--ink);color:var(--bg);border-radius:999px;padding:5px 11px;
+      }
+      .match-row button,.card-actions button{
+        border:1px solid var(--line-strong);background:var(--surface-2);border-radius:9px;
+        padding:7px 13px;font-weight:700;font-size:.87rem;min-height:38px;
+      }
+      .match-panel .close-matches{margin-top:10px;background:none;border:0;color:var(--ink-2);font-weight:700;text-decoration:underline;min-height:36px;padding:4px 2px}
+
+      /* Cards */
+      .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(258px,1fr));gap:14px}
+      .card{
+        background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+        overflow:hidden;box-shadow:var(--shadow);display:flex;flex-direction:column;
+        transition:box-shadow .15s, transform .15s;
+      }
+      .card:hover{box-shadow:var(--shadow-lg);transform:translateY(-2px)}
+      .card.flash{animation:flash 1.6s ease}
+      @keyframes flash{0%,60%{box-shadow:0 0 0 3px var(--amber-strong), var(--shadow-lg)}100%{box-shadow:var(--shadow)}}
+      @media (prefers-reduced-motion: reduce){.card.flash{animation:none}.card:hover{transform:none}.submit-btn:hover{transform:none}html{scroll-behavior:auto}}
+      .card-media{height:148px;position:relative;background:var(--surface-2)}
+      .card-media img{width:100%;height:100%;object-fit:cover}
+      .card-media .art{width:100%;height:100%;display:grid;place-items:center}
+      .card-media .art svg{width:56px;height:56px;opacity:.9}
+      .badge{
+        position:absolute;top:10px;left:10px;font-size:.74rem;font-weight:900;letter-spacing:.07em;
+        text-transform:uppercase;border-radius:999px;padding:5px 11px;color:#fff;
+      }
+      .badge.lost{background:var(--rust)} .badge.found{background:var(--teal)}
+      @media (prefers-color-scheme: dark){.badge.lost{background:#8a3b21}.badge.found{background:#14584c}}
+      .badge.resolved{background:#5b655c;top:auto;bottom:10px;left:10px}
+      .card-body{padding:14px 15px 15px;display:flex;flex-direction:column;gap:7px;flex:1}
+      .card-body h3{margin:0;font-size:1.08rem;font-weight:900;line-height:1.25;letter-spacing:-.01em}
+      .meta{display:flex;flex-direction:column;gap:3px;font-size:.88rem;color:var(--ink-2)}
+      .meta span{display:flex;gap:7px;align-items:center}
+      .meta svg{flex:0 0 auto;color:var(--ink-3)}
+      .desc{font-size:.9rem;color:var(--ink-2);margin:0}
+      .tags{display:flex;gap:6px;flex-wrap:wrap}
+      .tag{font-size:.75rem;font-weight:700;background:var(--surface-2);border:1px solid var(--line);border-radius:999px;padding:3px 9px;color:var(--ink-2)}
+      .poster{font-size:.82rem;color:var(--ink-3);border-top:1px dashed var(--line);padding-top:8px;margin-top:auto}
+      .poster b{color:var(--ink-2)}
+      .contact-box{display:none;background:var(--teal-tint);border-radius:10px;padding:10px 12px;font-size:.9rem}
+      .contact-box.show{display:block}
+      .contact-box b{color:var(--teal-dark)}
+      .card-actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:9px}
+      .card-actions .primary{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+      .card-actions .resolve{color:var(--teal-dark);border-color:color-mix(in srgb, var(--teal) 45%, var(--line-strong))}
+      .card.is-resolved{opacity:.72}
+      .card.is-resolved .card-media img,.card.is-resolved .card-media .art{filter:grayscale(.7)}
+
+      .empty{
+        display:none;text-align:center;border:1.5px dashed var(--line-strong);border-radius:var(--radius);
+        padding:38px 20px;color:var(--ink-2);background:var(--surface-2);
+      }
+      .empty.show{display:block}
+      .empty b{display:block;font-size:1.1rem;color:var(--ink);margin-bottom:4px}
+
+      footer{margin-top:40px;border-top:1px solid var(--line);padding-top:16px;color:var(--ink-3);font-size:.87rem;display:flex;flex-wrap:wrap;gap:8px;justify-content:space-between}
+      .toast{
+        position:fixed;left:50%;bottom:22px;transform:translate(-50%,80px);z-index:50;
+        background:var(--ink);color:var(--bg);border-radius:12px;padding:13px 18px;font-weight:700;
+        box-shadow:var(--shadow-lg);max-width:min(92vw,480px);text-align:center;transition:transform .25s ease;pointer-events:none;
+      }
+      .toast.show{transform:translate(-50%,0)}
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <header class="hero">
+        <div class="hero-top">
+          <div>
+            <h1>Campus Lost <span class="amp">&amp;</span> Found</h1>
+            <p class="lede">Lost your calculator in the library? Found someone&rsquo;s ID card at the gate? <strong>Post it here</strong> &mdash; the board matches lost and found posts by keyword, so things find their way back faster.</p>
+          </div>
+          <div class="stats" aria-label="Board statistics">
+            <div class="stat lost"><b id="statLost">0</b><span>Still lost</span></div>
+            <div class="stat found"><b id="statFound">0</b><span>Found items</span></div>
+            <div class="stat done"><b id="statDone">0</b><span>Reunited</span></div>
+          </div>
+        </div>
+        <div class="how" aria-label="How it works">
+          <div><span class="n">1</span><p style="margin:0"><b>Post it.</b> Lost or found &mdash; add a photo, the place, and the date.</p></div>
+          <div><span class="n">2</span><p style="margin:0"><b>We match it.</b> Keywords in the title, category and place are compared across the board.</p></div>
+          <div><span class="n">3</span><p style="margin:0"><b>Meet &amp; return.</b> Reveal the poster&rsquo;s contact, hand it over, mark it reunited.</p></div>
+        </div>
+      </header>
+
+      <div class="layout">
+        <!-- ============ POST FORM ============ -->
+        <section class="panel sticky" aria-labelledby="postTitle">
+          <h2 id="postTitle">Post an item</h2>
+          <p class="sub">Takes 30 seconds. A photo helps the owner recognise it instantly.</p>
+
+          <form id="postForm" novalidate>
+            <div class="type-toggle" role="group" aria-label="Lost or found">
+              <button type="button" data-type="lost" aria-pressed="true"><span class="dot"></span>I lost something</button>
+              <button type="button" data-type="found" aria-pressed="false"><span class="dot"></span>I found something</button>
+            </div>
+
+            <div class="field">
+              <label for="fTitle">Item name <span class="req">*</span></label>
+              <input type="text" id="fTitle" placeholder="e.g. Casio calculator, blue water bottle" maxlength="60" required />
+            </div>
+
+            <div class="field-row">
+              <div class="field">
+                <label for="fCategory">Category <span class="req">*</span></label>
+                <select id="fCategory" required>
+                  <option value="">Choose&hellip;</option>
+                  <option>ID Card / Documents</option>
+                  <option>Wallet / Money</option>
+                  <option>Keys</option>
+                  <option>Electronics</option>
+                  <option>Calculator / Stationery</option>
+                  <option>Bottle / Lunchbox</option>
+                  <option>Books / Notes</option>
+                  <option>Clothing / Umbrella</option>
+                  <option>Other</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="fDate">Date <span class="req">*</span></label>
+                <input type="date" id="fDate" required />
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="fPlace">Place <span class="req">*</span></label>
+              <input type="text" id="fPlace" list="places" placeholder="e.g. Central Library, Canteen, Hostel Block B" maxlength="60" required />
+              <datalist id="places">
+                <option value="Central Library"></option>
+                <option value="Canteen"></option>
+                <option value="Main Gate"></option>
+                <option value="Hostel Block A"></option>
+                <option value="Hostel Block B"></option>
+                <option value="Lecture Hall"></option>
+                <option value="Physics Lab"></option>
+                <option value="Computer Lab"></option>
+                <option value="Playground"></option>
+                <option value="Bus Stop"></option>
+                <option value="Auditorium"></option>
+                <option value="Mess"></option>
+              </datalist>
+            </div>
+
+            <div class="field">
+              <label for="fDesc">Description</label>
+              <textarea id="fDesc" placeholder="Colour, brand, any mark that proves it is theirs&hellip;" maxlength="220"></textarea>
+            </div>
+
+            <div class="field">
+              <label for="fPhoto">Photo</label>
+              <div class="photo-drop" id="photoDrop">
+                <div class="pd-label">Add a photo of the item</div>
+                <div class="pd-sub">From camera or gallery &mdash; optional but recommended</div>
+                <input type="file" id="fPhoto" accept="image/*" aria-label="Upload a photo of the item" />
+              </div>
+              <div class="photo-preview" id="photoPreview">
+                <img id="photoImg" alt="Photo of the item you are posting" />
+                <button type="button" id="photoRemove">Remove</button>
+              </div>
+            </div>
+
+            <div class="field-row">
+              <div class="field">
+                <label for="fName">Your name <span class="req">*</span></label>
+                <input type="text" id="fName" placeholder="e.g. Aarav S." maxlength="40" required />
+              </div>
+              <div class="field">
+                <label for="fContact">Contact <span class="req">*</span></label>
+                <input type="text" id="fContact" placeholder="Phone / WhatsApp / room no." maxlength="40" required />
+              </div>
+            </div>
+
+            <button class="submit-btn" type="submit" id="submitBtn">Post as LOST</button>
+            <div class="form-msg" id="formMsg" role="status"></div>
+          </form>
+        </section>
+
+        <!-- ============ BOARD ============ -->
+        <section aria-labelledby="boardTitle">
+          <div class="board-head">
+            <h2 id="boardTitle">The board</h2>
+            <span class="count" id="boardCount"></span>
+          </div>
+
+          <div class="searchbar">
+            <div class="search-wrap">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.8-3.8"/></svg>
+              <input type="text" id="searchInput" placeholder="Search by keyword &mdash; try &ldquo;calculator&rdquo; or &ldquo;bottle&rdquo;&hellip;" aria-label="Search items by keyword" />
+            </div>
+            <select id="catFilter" aria-label="Filter by category">
+              <option value="">All categories</option>
+              <option>ID Card / Documents</option>
+              <option>Wallet / Money</option>
+              <option>Keys</option>
+              <option>Electronics</option>
+              <option>Calculator / Stationery</option>
+              <option>Bottle / Lunchbox</option>
+              <option>Books / Notes</option>
+              <option>Clothing / Umbrella</option>
+              <option>Other</option>
+            </select>
+            <div class="pills" role="group" aria-label="Filter by status">
+              <button class="pill" data-filter="all" aria-pressed="true">All</button>
+              <button class="pill" data-filter="lost" aria-pressed="false">Lost</button>
+              <button class="pill" data-filter="found" aria-pressed="false">Found</button>
+              <button class="pill" data-filter="resolved" aria-pressed="false">Reunited</button>
+            </div>
+          </div>
+
+          <div class="match-panel" id="matchPanel" role="status">
+            <h3>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/></svg>
+              <span id="matchTitle">Possible matches</span>
+            </h3>
+            <p id="matchSub"></p>
+            <div class="match-list" id="matchList"></div>
+            <button class="close-matches" id="matchClose" type="button">Dismiss matches</button>
+          </div>
+
+          <div class="grid" id="grid"></div>
+          <div class="empty" id="emptyState">
+            <b>Nothing on the board matches that.</b>
+            Try a shorter keyword, or post the item &mdash; the owner may be searching too.
+          </div>
+        </section>
+      </div>
+
+      <footer>
+        <span>Campus Lost &amp; Found &mdash; a student notice board for getting things back to their owners.</span>
+        <span>Tip: always verify one detail from the description before handing an item over.</span>
+      </footer>
+    </div>
+
+    <div class="toast" id="toast" role="status"></div>
+
+    <script>
+      (function(){
+        "use strict";
+
+        /* ---------- Category art (inline SVG tiles for items without a photo) ---------- */
+        var ART = {
+          "ID Card / Documents": { bg:"#dbe7f5", fg:"#2c5f8a", path:'<rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="8.5" cy="11" r="2"/><path d="M5.5 17c.6-1.8 1.7-2.6 3-2.6s2.4.8 3 2.6"/><path d="M15 9.5h4M15 13h4"/>' },
+          "Wallet / Money": { bg:"#f3e3c8", fg:"#8a5a16", path:'<path d="M3 7a2 2 0 0 1 2-2h13a1 1 0 0 1 1 1v1"/><path d="M3 7v10a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-8a1 1 0 0 0-1-1H5a2 2 0 0 1-2-2Z"/><circle cx="16.5" cy="14" r="1.1"/>' },
+          "Keys": { bg:"#f5dfc0", fg:"#96690f", path:'<circle cx="8" cy="14" r="4.5"/><path d="m11.2 10.8 8-8"/><path d="M15 5.5l3 3M18.5 2 21 4.5"/>' },
+          "Electronics": { bg:"#dde8e2", fg:"#2e6b4f", path:'<rect x="7" y="2.5" width="10" height="19" rx="2"/><path d="M11 18.5h2"/>' },
+          "Calculator / Stationery": { bg:"#e6e0f2", fg:"#57448c", path:'<rect x="5" y="2.5" width="14" height="19" rx="2"/><rect x="8" y="5.5" width="8" height="3.5" rx=".7"/><path d="M8.5 12.5h.01M12 12.5h.01M15.5 12.5h.01M8.5 15.8h.01M12 15.8h.01M15.5 15.8h.01M8.5 19h.01M12 19h.01M15.5 19h.01"/>' },
+          "Bottle / Lunchbox": { bg:"#d8ecf3", fg:"#1f6d86", path:'<path d="M10 2.5h4"/><path d="M10.5 2.5v3L9 8v12a1.5 1.5 0 0 0 1.5 1.5h3A1.5 1.5 0 0 0 15 20V8l-1.5-2.5v-3"/><path d="M9 13h6"/>' },
+          "Books / Notes": { bg:"#f0dfd3", fg:"#8a4f2a", path:'<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V3H6.5A2.5 2.5 0 0 0 4 5.5v14Z"/><path d="M4 19.5A2.5 2.5 0 0 0 6.5 22H20v-5"/>' },
+          "Clothing / Umbrella": { bg:"#e3e9f5", fg:"#3c5a8a", path:'<path d="M12 3a9 9 0 0 1 9 9H3a9 9 0 0 1 9-9Z"/><path d="M12 12v6a2.5 2.5 0 0 0 5 0"/>' },
+          "Other": { bg:"#e8e6df", fg:"#5c665e", path:'<circle cx="11" cy="11" r="7"/><path d="m20 20-3.8-3.8"/>' }
+        };
+        function artFor(cat){
+          var a = ART[cat] || ART["Other"];
+          return '<div class="art" style="background:'+a.bg+'"><svg viewBox="0 0 24 24" fill="none" stroke="'+a.fg+'" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">'+a.path+'</svg></div>';
+        }
+
+        var ICON_PIN = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>';
+        var ICON_CAL = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="17" rx="2"/><path d="M8 2.5v4M16 2.5v4M3 10h18"/></svg>';
+
+        /* ---------- Seed listings (sample board for the demo) ---------- */
+        var items = [
+          { id:1, type:"lost",  title:"Casio Calculator fx-991", category:"Calculator / Stationery", place:"Central Library, Reading Hall", date:"2026-11-24", desc:"Black Casio with a small name sticker on the back cover. Needed for the end-term exams.", name:"Aarav S.", contact:"Room 214, Hostel Block A", photo:null, resolved:false },
+          { id:2, type:"found", title:"Casio Calculator", category:"Calculator / Stationery", place:"Physics Lab, Block C", date:"2026-11-25", desc:"Found on bench 4 after the morning practical. Black body, solar panel on top.", name:"Priya K.", contact:"CSE Section 02 — ask at Physics Lab desk", photo:null, resolved:false },
+          { id:3, type:"lost",  title:"Blue Water Bottle", category:"Bottle / Lunchbox", place:"Lecture Hall LH-2", date:"2026-11-23", desc:"Steel bottle, sky blue, dent near the base. Left it under the seat after the last lecture.", name:"Rohan M.", contact:"WhatsApp — ask CR, CSE Sec 02", photo:null, resolved:false },
+          { id:4, type:"found", title:"Steel Water Bottle (Blue)", category:"Bottle / Lunchbox", place:"Canteen", date:"2026-11-25", desc:"Blue steel bottle picked up from a canteen table at lunch. Kept safely with the canteen counter.", name:"Canteen Counter", contact:"Collect from the canteen counter", photo:null, resolved:false },
+          { id:5, type:"lost",  title:"College ID Card", category:"ID Card / Documents", place:"Main Gate", date:"2026-11-25", desc:"ID card in a transparent holder with a blue lanyard. Dropped somewhere between the gate and C-Block.", name:"Sneha R.", contact:"Room 108, Girls Hostel", photo:null, resolved:false },
+          { id:6, type:"found", title:"Brown Leather Wallet", category:"Wallet / Money", place:"Library Steps", date:"2026-11-24", desc:"Brown wallet found on the library steps. Has cards inside — owner can describe them to claim it.", name:"Kabir T.", contact:"Handed to Library Help Desk", photo:null, resolved:false },
+          { id:7, type:"lost",  title:"Hostel Room Keys", category:"Keys", place:"Playground", date:"2026-11-22", desc:"Two keys on a ring with a small metal football keychain. Lost during the evening football game.", name:"Dev P.", contact:"Room 312, Hostel Block B", photo:null, resolved:false },
+          { id:8, type:"found", title:"Black Umbrella", category:"Clothing / Umbrella", place:"Bus Stop", date:"2026-11-23", desc:"Full-size black umbrella left at the campus bus stop. Slightly bent rib, works fine.", name:"Isha V.", contact:"Security Desk, Main Gate", photo:null, resolved:false }
+        ];
+        var nextId = 9;
+
+        /* ---------- State ---------- */
+        var postType = "lost";
+        var photoData = null;
+        var filterType = "all";
+        var flashId = null;
+
+        /* ---------- Helpers ---------- */
+        function $(id){ return document.getElementById(id); }
+        function esc(s){
+          return String(s == null ? "" : s).replace(/[&<>"']/g, function(c){
+            return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];
+          });
+        }
+        function fmtDate(iso){
+          if(!iso) return "";
+          var p = iso.split("-");
+          var d = new Date(+p[0], +p[1]-1, +p[2]);
+          var months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+          return d.getDate() + " " + months[d.getMonth()] + " " + d.getFullYear();
+        }
+        var STOP = { "the":1,"a":1,"an":1,"of":1,"in":1,"on":1,"at":1,"near":1,"my":1,"i":1,"it":1,"is":1,"with":1,"and":1,"to":1,"from":1,"after":1,"left":1,"found":1,"lost":1 };
+        function tokenize(text){
+          var words = String(text||"").toLowerCase().replace(/[^a-z0-9\s-]/g," ").split(/[\s-]+/);
+          var set = {};
+          for(var i=0;i<words.length;i++){
+            var w = words[i];
+            if(w.length >= 3 && !STOP[w]) set[w] = 1;
+            if(w.length >= 4 && w.charAt(w.length-1) === "s") set[w.slice(0,-1)] = 1; /* bottle/bottles */
+          }
+          return set;
+        }
+        function strongTokens(item){ return tokenize(item.title + " " + item.category); }
+        function allTokens(item){ return tokenize(item.title + " " + item.category + " " + item.place + " " + (item.desc||"")); }
+        /* Keyword match: opposite type only. A pair counts as a match when the
+           title/category words overlap on BOTH sides (so a colour mentioned in
+           one description alone never matches), backed by wider overlap.
+           loose=true is used for free-text search probes. Score 0–100. */
+        function findMatches(target, limit, loose){
+          var ts = strongTokens(target), ta = allTokens(target);
+          var out = [];
+          for(var i=0;i<items.length;i++){
+            var it = items[i];
+            if(it.id === target.id || it.type === target.type || it.resolved) continue;
+            var os = strongTokens(it), oa = allTokens(it);
+            var strong = [], shared = [];
+            for(var w in ts){ if(os[w]) strong.push(w); }
+            for(var w2 in ta){ if(oa[w2]) shared.push(w2); }
+            var ok = loose
+              ? strong.length >= 1
+              : (strong.length >= 1 && shared.length >= 2) || shared.length >= 4;
+            if(!ok) continue;
+            var extra = Math.max(0, shared.length - strong.length);
+            var score = Math.min(96, 38 + strong.length * 16 + extra * 5 + (it.category === target.category ? 8 : 0));
+            var display = strong.concat(shared.filter(function(x){ return strong.indexOf(x) === -1; }));
+            out.push({ item: it, shared: display, score: score });
+          }
+          out.sort(function(a,b){ return b.score - a.score; });
+          return out.slice(0, limit || 3);
+        }
+
+        function toast(msg){
+          var t = $("toast");
+          t.textContent = msg;
+          t.classList.add("show");
+          clearTimeout(t._h);
+          t._h = setTimeout(function(){ t.classList.remove("show"); }, 3400);
+        }
+
+        /* ---------- Render ---------- */
+        function render(){
+          var q = $("searchInput").value.trim().toLowerCase();
+          var cat = $("catFilter").value;
+
+          var lost = 0, found = 0, done = 0;
+          items.forEach(function(it){
+            if(it.resolved) done++;
+            else if(it.type === "lost") lost++;
+            else found++;
+          });
+          $("statLost").textContent = lost;
+          $("statFound").textContent = found;
+          $("statDone").textContent = done;
+
+          var visible = items.filter(function(it){
+            if(filterType === "resolved"){ if(!it.resolved) return false; }
+            else if(filterType !== "all"){ if(it.type !== filterType || it.resolved) return false; }
+            if(cat && it.category !== cat) return false;
+            if(q){
+              var hay = (it.title + " " + it.category + " " + it.place + " " + (it.desc||"") + " " + it.name).toLowerCase();
+              var words = q.split(/\s+/);
+              for(var i=0;i<words.length;i++){ if(words[i] && hay.indexOf(words[i]) === -1) return false; }
+            }
+            return true;
+          });
+          visible.sort(function(a,b){ return b.id - a.id; });
+
+          $("boardCount").textContent = visible.length + (visible.length === 1 ? " listing" : " listings") + " · sample posts included for demo";
+          $("emptyState").classList.toggle("show", visible.length === 0);
+
+          $("grid").innerHTML = visible.map(function(it){
+            var media = it.photo
+              ? '<img src="'+it.photo+'" alt="Photo of '+esc(it.title)+'" />'
+              : artFor(it.category);
+            var badgeCls = it.type;
+            var badgeTxt = it.type === "lost" ? "Lost" : "Found";
+            var when = it.type === "lost" ? "Lost on " : "Found on ";
+            var actions = "";
+            if(!it.resolved){
+              actions =
+                '<button type="button" class="primary" data-act="contact" data-id="'+it.id+'">Show contact</button>' +
+                '<button type="button" data-act="match" data-id="'+it.id+'">Find matches</button>' +
+                '<button type="button" class="resolve" data-act="resolve" data-id="'+it.id+'">Mark reunited</button>';
+            } else {
+              actions = '<button type="button" data-act="contact" data-id="'+it.id+'">Show contact</button>';
+            }
+            return '' +
+            '<article class="card'+(it.resolved ? " is-resolved" : "")+(flashId === it.id ? " flash" : "")+'" data-card="'+it.id+'">' +
+              '<div class="card-media">' + media +
+                '<span class="badge '+badgeCls+'">'+badgeTxt+'</span>' +
+                (it.resolved ? '<span class="badge resolved">Reunited ✓</span>' : '') +
+              '</div>' +
+              '<div class="card-body">' +
+                '<h3>'+esc(it.title)+'</h3>' +
+                '<div class="meta">' +
+                  '<span>'+ICON_PIN+esc(it.place)+'</span>' +
+                  '<span>'+ICON_CAL+when+fmtDate(it.date)+'</span>' +
+                '</div>' +
+                (it.desc ? '<p class="desc">'+esc(it.desc)+'</p>' : '') +
+                '<div class="tags"><span class="tag">'+esc(it.category)+'</span></div>' +
+                '<div class="contact-box" id="contact-'+it.id+'"><b>'+esc(it.name)+'</b> — '+esc(it.contact)+'</div>' +
+                '<p class="poster">Posted by <b>'+esc(it.name)+'</b></p>' +
+                '<div class="card-actions">'+actions+'</div>' +
+              '</div>' +
+            '</article>';
+          }).join("");
+        }
+
+        function showMatches(target, matches, heading){
+          var panel = $("matchPanel");
+          if(!matches.length){
+            $("matchTitle").textContent = heading || "No match yet";
+            $("matchSub").textContent = "No opposite-side post shares keywords with \u201C" + target.title + "\u201D right now. The moment a matching post appears, it will show up here when you search.";
+            $("matchList").innerHTML = "";
+            panel.classList.add("show");
+            return;
+          }
+          $("matchTitle").textContent = heading || "Possible matches";
+          $("matchSub").textContent = "Matched by shared keywords with \u201C" + target.title + "\u201D (" + (target.type === "lost" ? "LOST" : "FOUND") + " · " + target.place + "). Check the details, then contact the poster.";
+          $("matchList").innerHTML = matches.map(function(m){
+            return '<div class="match-row">' +
+              '<span class="score">'+m.score+'% match</span>' +
+              '<div class="grow"><div class="t">'+esc(m.item.title)+' <span style="font-weight:600;color:var(--ink-3)">· '+(m.item.type === "lost" ? "LOST" : "FOUND")+'</span></div>' +
+              '<div class="m">'+esc(m.item.place)+' · '+fmtDate(m.item.date)+' · shared: '+m.shared.slice(0,4).join(", ")+'</div></div>' +
+              '<button type="button" data-act="contact" data-id="'+m.item.id+'">Show contact</button>' +
+              '<button type="button" data-act="view" data-id="'+m.item.id+'">View post</button>' +
+            '</div>';
+          }).join("");
+          panel.classList.add("show");
+        }
+
+        /* ---------- Type toggle ---------- */
+        var toggleBtns = document.querySelectorAll(".type-toggle button");
+        toggleBtns.forEach(function(btn){
+          btn.addEventListener("click", function(){
+            postType = btn.getAttribute("data-type");
+            toggleBtns.forEach(function(b){ b.setAttribute("aria-pressed", b === btn ? "true" : "false"); });
+            $("submitBtn").textContent = postType === "lost" ? "Post as LOST" : "Post as FOUND";
+          });
+        });
+
+        /* ---------- Photo upload ---------- */
+        var fileInput = $("fPhoto");
+        fileInput.addEventListener("change", function(){
+          var f = fileInput.files && fileInput.files[0];
+          if(!f) return;
+          if(!/^image\//.test(f.type)){ showMsg("That file is not an image. Please pick a photo.", false); return; }
+          var reader = new FileReader();
+          reader.onload = function(){
+            photoData = reader.result;
+            $("photoImg").src = photoData;
+            $("photoPreview").style.display = "block";
+          };
+          reader.readAsDataURL(f);
+        });
+        $("photoRemove").addEventListener("click", function(){
+          photoData = null;
+          fileInput.value = "";
+          $("photoPreview").style.display = "none";
+        });
+
+        function showMsg(msg, ok){
+          var m = $("formMsg");
+          m.textContent = msg;
+          m.className = "form-msg " + (ok ? "ok" : "err");
+        }
+
+        /* ---------- Submit ---------- */
+        $("postForm").addEventListener("submit", function(e){
+          e.preventDefault();
+          var title = $("fTitle").value.trim();
+          var category = $("fCategory").value;
+          var date = $("fDate").value;
+          var place = $("fPlace").value.trim();
+          var desc = $("fDesc").value.trim();
+          var name = $("fName").value.trim();
+          var contact = $("fContact").value.trim();
+
+          if(!title || !category || !date || !place || !name || !contact){
+            showMsg("Please fill the starred fields — item name, category, date, place, your name and a contact.", false);
+            return;
+          }
+          var item = { id: nextId++, type: postType, title: title, category: category, place: place, date: date, desc: desc, name: name, contact: contact, photo: photoData, resolved: false };
+          items.unshift(item);
+          flashId = item.id;
+          render();
+
+          /* Reset form (keep name/contact for fast second post) */
+          $("fTitle").value = ""; $("fCategory").value = ""; $("fPlace").value = ""; $("fDesc").value = "";
+          photoData = null; fileInput.value = ""; $("photoPreview").style.display = "none";
+
+          var matches = findMatches(item, 3);
+          if(matches.length){
+            showMsg("Posted! We also found " + matches.length + " possible match" + (matches.length > 1 ? "es" : "") + " already on the board — see the matches panel.", true);
+            showMatches(item, matches, "Good news — possible matches found");
+            $("matchPanel").scrollIntoView({ behavior:"smooth", block:"center" });
+          } else {
+            showMsg("Posted to the board. If a matching " + (postType === "lost" ? "found" : "lost") + " post appears, search your item name to see it matched.", true);
+            toast("Your " + postType.toUpperCase() + " post is live on the board.");
+          }
+          setTimeout(function(){ flashId = null; }, 1800);
+        });
+
+        /* ---------- Board controls ---------- */
+        $("searchInput").addEventListener("input", function(){
+          render();
+          var q = this.value.trim();
+          if(q.length >= 3){
+            /* Live matching: treat the search as a virtual item and surface opposite-side hits */
+            var probe = { id:-1, type:"lost", title:q, category:$("catFilter").value || "", place:"", desc:"" };
+            var asLost = findMatches(probe, 2, true);
+            probe.type = "found";
+            var asFound = findMatches(probe, 2, true);
+            var seen = {}, merged = [];
+            asLost.concat(asFound).forEach(function(m){ if(!seen[m.item.id]){ seen[m.item.id] = 1; merged.push(m); } });
+            merged.sort(function(a,b){ return b.score - a.score; });
+            if(merged.length){
+              showMatches({ title:q, type:"lost", place:"your search" }, merged.slice(0,3), "Matches for \u201C" + q + "\u201D");
+              return;
+            }
+          }
+          if(q.length === 0) $("matchPanel").classList.remove("show");
+        });
+        $("catFilter").addEventListener("change", render);
+        document.querySelectorAll(".pill").forEach(function(p){
+          p.addEventListener("click", function(){
+            filterType = p.getAttribute("data-filter");
+            document.querySelectorAll(".pill").forEach(function(x){ x.setAttribute("aria-pressed", x === p ? "true" : "false"); });
+            render();
+          });
+        });
+        $("matchClose").addEventListener("click", function(){ $("matchPanel").classList.remove("show"); });
+
+        /* ---------- Card / match actions (event delegation) ---------- */
+        document.addEventListener("click", function(e){
+          var btn = e.target.closest ? e.target.closest("[data-act]") : null;
+          if(!btn) return;
+          var id = +btn.getAttribute("data-id");
+          var act = btn.getAttribute("data-act");
+          var item = null;
+          for(var i=0;i<items.length;i++){ if(items[i].id === id){ item = items[i]; break; } }
+          if(!item) return;
+
+          if(act === "contact"){
+            var box = $("contact-" + id);
+            if(box){
+              box.classList.toggle("show");
+              btn.textContent = box.classList.contains("show") ? "Hide contact" : "Show contact";
+            } else {
+              toast(item.name + " — " + item.contact);
+            }
+          }
+          if(act === "view"){
+            filterType = "all";
+            document.querySelectorAll(".pill").forEach(function(x){ x.setAttribute("aria-pressed", x.getAttribute("data-filter") === "all" ? "true" : "false"); });
+            $("searchInput").value = ""; $("catFilter").value = "";
+            render();
+            var card = document.querySelector('[data-card="'+id+'"]');
+            if(card){ card.scrollIntoView({ behavior:"smooth", block:"center" }); flashId = id; card.classList.add("flash"); setTimeout(function(){ card.classList.remove("flash"); flashId = null; }, 1700); }
+          }
+          if(act === "match"){
+            var matches = findMatches(item, 3);
+            showMatches(item, matches);
+            $("matchPanel").scrollIntoView({ behavior:"smooth", block:"center" });
+          }
+          if(act === "resolve"){
+            item.resolved = true;
+            render();
+            toast("Marked as reunited. One more thing back with its owner.");
+          }
+        });
+
+        /* ---------- Init ---------- */
+        var today = new Date();
+        var iso = today.getFullYear() + "-" + String(today.getMonth()+1).padStart(2,"0") + "-" + String(today.getDate()).padStart(2,"0");
+        $("fDate").value = iso;
+        $("fDate").max = iso;
+        render();
+      })();
+    </script>
+  </body>
+</html>
