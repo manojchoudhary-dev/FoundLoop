@@ -359,7 +359,7 @@
         <div class="hero-top">
           <div>
             <h1>Campus Lost <span class="amp">&amp;</span> Found</h1>
-            <p class="lede">Lost your calculator in the library? Found someone&rsquo;s ID card at the gate? <strong>Post it here</strong> &mdash; the board matches lost and found posts by keyword, so things find their way back faster.</p>
+            <p class="lede">Lost your calculator in the library? Found someone&rsquo;s ID card at the gate? <strong>Post it here</strong> &mdash; the board scores every lost post against every found post and shows the best matches as a percentage, so things find their way back faster.</p>
             <p class="fb-status" id="fbStatus" role="status"><span class="dot"></span><span id="fbStatusText">Connecting to Firebase&hellip;</span></p>
             <div class="auth-box" id="authBox">
               <button type="button" class="signin-btn" id="signInBtn">
@@ -398,7 +398,7 @@
         </div>
         <div class="how" aria-label="How it works">
           <div><span class="n">1</span><p style="margin:0"><b>Post it.</b> Lost or found &mdash; add a photo, the place, and the date.</p></div>
-          <div><span class="n">2</span><p style="margin:0"><b>We match it.</b> Keywords in the title, category and place are compared across the board.</p></div>
+          <div><span class="n">2</span><p style="margin:0"><b>We match it.</b> Lost posts are scored against Found posts out of 100 &mdash; category, keywords (English + Hindi synonyms), place and date gap &mdash; and the best match shows first.</p></div>
           <div><span class="n">3</span><p style="margin:0"><b>Meet &amp; return.</b> Reveal the poster&rsquo;s contact, hand it over, mark it reunited.</p></div>
         </div>
       </header>
@@ -805,41 +805,151 @@
           var months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
           return d.getDate() + " " + months[d.getMonth()] + " " + d.getFullYear();
         }
+        /* ================= Matching algorithm =================
+           Matching runs in two steps:
+
+           STEP 1 — HARD FILTERS. A pair is rejected outright when:
+             • both posts are on the same side — a Lost post only ever
+               matches Found posts, never Lost–Lost or Found–Found;
+             • the found date is BEFORE the lost date — an item cannot be
+               found before it was lost;
+             • the two posts share no keyword concept at all (Step 2).
+
+           STEP 2 — WEIGHTED SCORE, 0–100:
+             same category ................. +30
+             shared keywords ............... up to +35
+               (a word shared in both titles/categories counts 12, a word
+                shared only via descriptions counts 5; every word is first
+                mapped through the synonym table below, so English and
+                Hindi words for the same thing — batua/wallet, chabi/keys,
+                kala/black — land on the same concept and connect)
+             same place .................... +15 (partly shared place +8)
+             date gap ...................... up to +20
+               (found the same day = 20, fading to 0 over 14 days)
+
+           Pairs scoring 40+ are shown as matches, best score first, each
+           with its "% match" badge and the full score breakdown. */
+
+        /* Synonym table: word → concept (English + Hindi in Roman script) */
+        var SYNONYMS = {
+          key:"keys", keys:"keys", chabi:"keys", chaabi:"keys", chabhi:"keys", kunji:"keys",
+          wallet:"wallet", purse:"wallet", batua:"wallet",
+          money:"money", cash:"money", rupee:"money", rupees:"money", paisa:"money", paise:"money",
+          identity:"idcard", idcard:"idcard",
+          bottle:"bottle", sipper:"bottle", flask:"bottle", thermos:"bottle",
+          lunchbox:"lunchbox", tiffin:"lunchbox",
+          calculator:"calculator", calc:"calculator",
+          bag:"bag", backpack:"bag", jhola:"bag", basta:"bag",
+          umbrella:"umbrella", chhata:"umbrella", chata:"umbrella", chhatri:"umbrella",
+          phone:"phone", mobile:"phone", smartphone:"phone", cellphone:"phone",
+          charger:"charger", adapter:"charger", adaptor:"charger",
+          book:"book", notebook:"book", copy:"book", kitab:"book", kitaab:"book", notes:"book",
+          glasses:"glasses", spectacles:"glasses", specs:"glasses", chashma:"glasses", sunglasses:"glasses", goggles:"glasses",
+          earphones:"earphones", earphone:"earphones", earbuds:"earphones", earbud:"earphones", headphones:"earphones", headphone:"earphones", headset:"earphones", airpods:"earphones",
+          watch:"watch", ghadi:"watch",
+          laptop:"laptop", macbook:"laptop",
+          black:"black", dark:"black", kala:"black", kaala:"black",
+          white:"white", safed:"white", saphed:"white",
+          red:"red", lal:"red", laal:"red",
+          blue:"blue", neela:"blue", neeli:"blue",
+          green:"green", hara:"green", hari:"green",
+          yellow:"yellow", peela:"yellow", peeli:"yellow",
+          pink:"pink", gulabi:"pink",
+          orange:"orange", narangi:"orange", kesariya:"orange",
+          brown:"brown", bhoora:"brown", bhura:"brown",
+          grey:"grey", gray:"grey",
+          purple:"purple", baingani:"purple", jamuni:"purple",
+          silver:"silver", chandi:"silver",
+          golden:"golden", gold:"golden", sunehra:"golden", sunahra:"golden"
+        };
+        /* Category words too broad to count as a keyword on their own —
+           they still add a little through the weak-overlap points. */
+        var GENERIC = { electronics:1, electronic:1, documents:1, document:1, clothing:1, stationery:1, other:1 };
+        var CONCEPT_LABEL = { idcard:"ID card" };
         var STOP = { "the":1,"a":1,"an":1,"of":1,"in":1,"on":1,"at":1,"near":1,"my":1,"i":1,"it":1,"is":1,"with":1,"and":1,"to":1,"from":1,"after":1,"left":1,"found":1,"lost":1 };
-        function tokenize(text){
-          var words = String(text||"").toLowerCase().replace(/[^a-z0-9\s-]/g," ").split(/[\s-]+/);
+        /* Turn free text into a set of keyword concepts: phrases first
+           ("identity card", "id card" and a bare "ID" all become the one
+           concept idcard), then each word is mapped through SYNONYMS. */
+        function conceptSet(text){
+          var t = String(text||"").toLowerCase().replace(/[^a-z0-9]+/g," ");
+          t = t.replace(/identity card/g, "idcard").replace(/id card/g, "idcard").replace(/\bid\b/g, "idcard");
+          var words = t.split(/\s+/);
           var set = {};
           for(var i=0;i<words.length;i++){
             var w = words[i];
-            if(w.length >= 3 && !STOP[w]) set[w] = 1;
-            if(w.length >= 4 && w.charAt(w.length-1) === "s") set[w.slice(0,-1)] = 1; /* bottle/bottles */
+            if(!w) continue;
+            var forms = [w];
+            if(w.length >= 4 && w.charAt(w.length-1) === "s") forms.push(w.slice(0,-1)); /* bottle/bottles */
+            for(var j=0;j<forms.length;j++){
+              var f = forms[j];
+              if(STOP[f]) continue;
+              if(SYNONYMS[f]) set[SYNONYMS[f]] = 1;
+              else if(f.length >= 3) set[f] = 1;
+            }
           }
           return set;
         }
-        function strongTokens(item){ return tokenize(item.title + " " + item.category); }
-        function allTokens(item){ return tokenize(item.title + " " + item.category + " " + item.place + " " + (item.desc||"")); }
-        /* Keyword match: opposite type only. A pair counts as a match when the
-           title/category words overlap on BOTH sides (so a colour mentioned in
-           one description alone never matches), backed by wider overlap.
-           loose=true is used for free-text search probes. Score 0–100. */
+        function strongConcepts(item){ return conceptSet(item.title + " " + item.category); }
+        function allConcepts(item){ return conceptSet(item.title + " " + item.category + " " + (item.desc||"")); }
+        function dayNumber(iso){
+          if(!iso) return null;
+          var p = String(iso).split("-");
+          if(p.length !== 3) return null;
+          return Math.round(Date.UTC(+p[0], +p[1]-1, +p[2]) / 86400000);
+        }
+        function placeScore(a, b){
+          var na = String(a||"").toLowerCase().replace(/[^a-z0-9]+/g," ").trim();
+          var nb = String(b||"").toLowerCase().replace(/[^a-z0-9]+/g," ").trim();
+          if(!na || !nb) return 0;
+          if(na === nb) return 15;
+          var wa = na.split(" ");
+          for(var i=0;i<wa.length;i++){
+            if(wa[i].length >= 4 && (" " + nb + " ").indexOf(" " + wa[i] + " ") !== -1) return 8;
+          }
+          return 0;
+        }
+        /* Weighted score for one pair (hard filters live in findMatches).
+           Returns the total plus the breakdown shown beside the badge. */
+        function scorePair(target, it){
+          var ts = strongConcepts(target), ta = allConcepts(target);
+          var os = strongConcepts(it), oa = allConcepts(it);
+          var strongShared = [], weakShared = [], genericShared = 0;
+          for(var w in ta){
+            if(!oa[w]) continue;
+            if(GENERIC[w]){ genericShared++; continue; }
+            if(ts[w] && os[w]) strongShared.push(w); else weakShared.push(w);
+          }
+          var catPts = (target.category && it.category && it.category === target.category) ? 30 : 0;
+          var kwPts = Math.min(35, strongShared.length * 12 + weakShared.length * 5 + genericShared * 3);
+          var plPts = placeScore(target.place, it.place);
+          var lostDate = dayNumber(target.type === "lost" ? target.date : it.date);
+          var foundDate = dayNumber(target.type === "lost" ? it.date : target.date);
+          var gap = (lostDate != null && foundDate != null) ? (foundDate - lostDate) : null;
+          var datePts = gap == null ? 0 : Math.round(20 * Math.max(0, 1 - gap / 14));
+          var total = Math.min(100, catPts + kwPts + plPts + datePts);
+          var shared = strongShared.concat(weakShared).map(function(c){ return CONCEPT_LABEL[c] || c; });
+          return {
+            item: it, shared: shared, score: total,
+            parts: { category: catPts, keywords: kwPts, place: plPts, date: datePts },
+            gapDays: gap,
+            conceptCount: strongShared.length + weakShared.length
+          };
+        }
         function findMatches(target, limit, loose){
-          var ts = strongTokens(target), ta = allTokens(target);
           var out = [];
           for(var i=0;i<items.length;i++){
             var it = items[i];
+            /* HARD FILTER 1: opposite sides only — Lost ↔ Found */
             if(it.id === target.id || it.type === target.type || it.resolved) continue;
-            var os = strongTokens(it), oa = allTokens(it);
-            var strong = [], shared = [];
-            for(var w in ts){ if(os[w]) strong.push(w); }
-            for(var w2 in ta){ if(oa[w2]) shared.push(w2); }
-            var ok = loose
-              ? strong.length >= 1
-              : (strong.length >= 1 && shared.length >= 2) || shared.length >= 4;
-            if(!ok) continue;
-            var extra = Math.max(0, shared.length - strong.length);
-            var score = Math.min(96, 38 + strong.length * 16 + extra * 5 + (it.category === target.category ? 8 : 0));
-            var display = strong.concat(shared.filter(function(x){ return strong.indexOf(x) === -1; }));
-            out.push({ item: it, shared: display, score: score });
+            /* HARD FILTER 2: found date must be on or after the lost date */
+            var lost = target.type === "lost" ? target : it;
+            var found = target.type === "lost" ? it : target;
+            if(lost.date && found.date && found.date < lost.date) continue;
+            var s = scorePair(target, it);
+            /* HARD FILTER 3: at least one shared keyword concept */
+            if(s.conceptCount < 1) continue;
+            if(loose ? s.score < 12 : s.score < 40) continue;
+            out.push(s);
           }
           out.sort(function(a,b){ return b.score - a.score; });
           return out.slice(0, limit || 3);
@@ -894,8 +1004,8 @@
           $("emptyState").classList.toggle("show", visible.length === 0);
 
           $("grid").innerHTML = visible.map(function(it){
-            var media = it.photo
-              ? '<img src="'+it.photo+'" alt="Photo of '+esc(it.title)+'" />'
+            var media = (it.photo && String(it.photo).indexOf("data:image/") === 0)
+              ? '<img src="'+esc(it.photo)+'" alt="Photo of '+esc(it.title)+'" />'
               : artFor(it.category);
             var badgeCls = it.type;
             var badgeTxt = it.type === "lost" ? "Lost" : "Found";
@@ -934,22 +1044,34 @@
           }).join("");
         }
 
+        /* One-line explanation of a score, e.g.
+           "same category +30 · keywords (wallet, black) +35 · same place +15 · found 1 day later +19" */
+        function whyLine(m){
+          var bits = [];
+          if(m.parts.category) bits.push("same category +" + m.parts.category);
+          if(m.parts.keywords) bits.push("keywords (" + m.shared.slice(0,4).join(", ") + ") +" + m.parts.keywords);
+          if(m.parts.place) bits.push((m.parts.place === 15 ? "same place" : "similar place") + " +" + m.parts.place);
+          if(m.gapDays != null && m.gapDays >= 0) bits.push((m.gapDays === 0 ? "found the same day" : "found " + m.gapDays + " day" + (m.gapDays === 1 ? "" : "s") + " later") + " +" + m.parts.date);
+          return bits.join(" · ");
+        }
+
         function showMatches(target, matches, heading){
           var panel = $("matchPanel");
           if(!matches.length){
             $("matchTitle").textContent = heading || "No match yet";
-            $("matchSub").textContent = "No opposite-side post shares keywords with \u201C" + target.title + "\u201D right now. The moment a matching post appears, it will show up here when you search.";
+            $("matchSub").textContent = "Nothing on the other side of the board matches \u201C" + target.title + "\u201D yet. A match needs the opposite type (Lost \u2194 Found), a found date on or after the lost date, and at least one shared keyword \u2014 English and Hindi synonyms count.";
             $("matchList").innerHTML = "";
             panel.classList.add("show");
             return;
           }
           $("matchTitle").textContent = heading || "Possible matches";
-          $("matchSub").textContent = "Matched by shared keywords with \u201C" + target.title + "\u201D (" + (target.type === "lost" ? "LOST" : "FOUND") + " · " + target.place + "). Check the details, then contact the poster.";
+          $("matchSub").textContent = "Scored out of 100 by the matching algorithm for \u201C" + target.title + "\u201D (" + (target.type === "lost" ? "LOST" : "FOUND") + " \u00B7 " + target.place + "): same category 30 \u00B7 shared keywords up to 35 \u00B7 same place 15 \u00B7 close dates up to 20. Best match first \u2014 check the details, then contact the poster.";
           $("matchList").innerHTML = matches.map(function(m){
             return '<div class="match-row">' +
               '<span class="score">'+m.score+'% match</span>' +
               '<div class="grow"><div class="t">'+esc(m.item.title)+' <span style="font-weight:600;color:var(--ink-3)">· '+(m.item.type === "lost" ? "LOST" : "FOUND")+'</span></div>' +
-              '<div class="m">'+esc(m.item.place)+' · '+fmtDate(m.item.date)+' · shared: '+m.shared.slice(0,4).join(", ")+'</div></div>' +
+              '<div class="m">'+esc(m.item.place)+' · '+fmtDate(m.item.date)+'</div>' +
+              '<div class="m">Why: '+esc(whyLine(m))+'</div></div>' +
               '<button type="button" data-act="contact" data-id="'+m.item.id+'">Show contact</button>' +
               '<button type="button" data-act="view" data-id="'+m.item.id+'">View post</button>' +
             '</div>';
