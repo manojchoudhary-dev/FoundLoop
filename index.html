@@ -57,7 +57,29 @@
 
       /* ---------- Header ---------- */
       header.hero{padding:34px 0 8px}
-      .hero-top{display:flex;flex-wrap:wrap;gap:22px;align-items:flex-end;justify-content:space-between}
+      .hero-top{display:flex;flex-wrap:wrap;gap:22px;align-items:flex-start;justify-content:space-between}
+      .hero-main{flex:1 1 420px;min-width:0}
+      .hero-side{display:flex;flex-direction:column;gap:12px;align-items:flex-end;flex:0 1 344px}
+      @media (max-width:760px){.hero-side{align-items:stretch;flex-basis:100%}}
+      .scholar-card{
+        width:100%;max-width:344px;background:var(--surface);border:1.5px solid var(--line-strong);
+        border-radius:14px;padding:16px 18px 14px;box-shadow:var(--shadow);transform:rotate(.6deg);
+      }
+      @media (max-width:760px){.scholar-card{max-width:none}}
+      .scholar-card .scholar-title{
+        font-family:"Caveat",cursive;font-weight:700;font-size:1.55rem;line-height:1;margin:0;color:var(--ink);
+      }
+      .scholar-card .scholar-sub{margin:4px 0 0;font-size:.8rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-3)}
+      .scholar-list{list-style:none;margin:12px 0 0;padding:0;display:grid;gap:0}
+      .scholar-list li{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 0;border-top:1px dashed var(--line)}
+      .scholar-list li:first-child{border-top:0;padding-top:2px}
+      .scholar-list .scholar-name{font-weight:700;font-size:.96rem;color:var(--ink-2);line-height:1.2}
+      .scholar-list li.lead .scholar-name{font-weight:900;font-size:1.08rem;color:var(--ink)}
+      .scholar-list .scholar-no{
+        flex:0 0 auto;font-family:"DM Mono",monospace;font-size:.94rem;font-weight:500;letter-spacing:.02em;
+        background:var(--surface-2);border:1.5px solid var(--line-strong);border-radius:999px;padding:4px 10px;color:var(--ink);
+      }
+      .scholar-list li.lead .scholar-no{background:var(--ink);border-color:var(--ink);color:var(--bg)}
       .hero h1{
         font-family:"Caveat", cursive;
         font-weight:700;
@@ -411,7 +433,7 @@
     <div class="wrap">
       <header class="hero">
         <div class="hero-top">
-          <div>
+          <div class="hero-main">
             <h1>Found<span class="amp">Loop</span></h1>
             <p class="lede">Lost your calculator in the library? Found someone&rsquo;s ID card at the gate? <strong>Post it here</strong> &mdash; the board scores every lost post against every found post and shows the best matches as a percentage, so things find their way back faster.</p>
             <p class="fb-status" id="fbStatus" role="status"><span class="dot"></span><span id="fbStatusText">Connecting to Firebase&hellip;</span></p>
@@ -424,10 +446,21 @@
               </span>
             </div>
           </div>
-          <div class="stats" id="boardStats" aria-label="Board statistics" hidden>
-            <div class="stat lost"><b id="statLost">0</b><span>Still lost</span></div>
-            <div class="stat found"><b id="statFound">0</b><span>Found items</span></div>
-            <div class="stat done"><b id="statDone">0</b><span>Reunited</span></div>
+          <div class="hero-side">
+            <div class="scholar-card" aria-label="Team scholar numbers">
+              <p class="scholar-title">Team Scholar Numbers</p>
+              <p class="scholar-sub">FoCP (CSE-1003) · IIIT Bhopal</p>
+              <ul class="scholar-list">
+                <li class="lead"><span class="scholar-name">Manoj Choudhary</span><span class="scholar-no">26U020146</span></li>
+                <li><span class="scholar-name">Arvind Choudhary</span><span class="scholar-no">26U020131</span></li>
+                <li><span class="scholar-name">Shaurya Srivastava</span><span class="scholar-no">26U020141</span></li>
+              </ul>
+            </div>
+            <div class="stats" id="boardStats" aria-label="Board statistics" hidden>
+              <div class="stat lost"><b id="statLost">0</b><span>Still lost</span></div>
+              <div class="stat found"><b id="statFound">0</b><span>Found items</span></div>
+              <div class="stat done"><b id="statDone">0</b><span>Reunited</span></div>
+            </div>
           </div>
         </div>
         <div class="how" aria-label="How it works">
