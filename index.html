@@ -370,32 +370,12 @@
             <p class="lede">Lost your calculator in the library? Found someone&rsquo;s ID card at the gate? <strong>Post it here</strong> &mdash; the board scores every lost post against every found post and shows the best matches as a percentage, so things find their way back faster.</p>
             <p class="fb-status" id="fbStatus" role="status"><span class="dot"></span><span id="fbStatusText">Connecting to Firebase&hellip;</span></p>
             <div class="auth-box" id="authBox">
-              <button type="button" class="signin-btn" id="signInBtn">
-                <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.1H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.2 8 3l5.7-5.7C34.3 6.1 29.3 4 24 4 13 4 4 13 4 24s9 20 20 20 20-9 20-20c0-1.3-.1-2.6-.4-3.9z"/><path fill="#FF3D00" d="m6.3 14.7 6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.9 1.2 8 3l5.7-5.7C34.3 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.1H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C36.9 39.2 44 34 44 24c0-1.3-.1-2.6-.4-3.9z"/></svg>
-                Sign in with Google
-              </button>
               <span class="user-chip" id="userChip" hidden>
                 <img id="userPhoto" alt="" hidden />
                 <span class="avatar-fallback" id="userAvatarFallback" hidden aria-hidden="true"></span>
                 <span>Signed in as <b id="userName"></b></span>
                 <button type="button" class="signout-btn" id="signOutBtn">Sign out</button>
               </span>
-            </div>
-            <div class="auth-divider" id="authDivider"><span>or use email</span></div>
-            <div class="email-auth" id="emailAuthBox">
-              <p class="ea-title">Sign in with email</p>
-              <p class="ea-sub">Only IIIT Bhopal college email accounts (@iiitbhopal.ac.in) can sign in. Already have an account? Sign in below. New here? Tap <b>Create account</b> instead &mdash; same college email and password.</p>
-              <form id="emailAuthForm" novalidate>
-                <div class="ea-fields">
-                  <input type="email" id="authEmail" placeholder="College email (@iiitbhopal.ac.in)" autocomplete="email" aria-label="Email address" required />
-                  <input type="password" id="authPassword" placeholder="Password (at least 6 characters)" autocomplete="current-password" aria-label="Password" required />
-                </div>
-                <div class="ea-actions">
-                  <button type="submit" class="ea-signin" id="emailSignInBtn">Sign in</button>
-                  <button type="button" class="ea-signup" id="emailSignUpBtn">Create account</button>
-                </div>
-                <p class="auth-msg" id="emailAuthMsg" role="status" aria-live="polite"></p>
-              </form>
             </div>
           </div>
           <div class="stats" id="boardStats" aria-label="Board statistics" hidden>
@@ -419,26 +399,7 @@
 
           <div class="auth-gate" id="authGate">
             <b>Sign in to post an item</b>
-            <p>Posting needs a sign-in with your IIIT Bhopal college email (@iiitbhopal.ac.in) &mdash; Google or email &mdash; so every post is tied to its owner, and only the owner can mark it reunited later.</p>
-            <button type="button" class="signin-btn" id="gateSignInBtn">
-              <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.1H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.2 8 3l5.7-5.7C34.3 6.1 29.3 4 24 4 13 4 4 13 4 24s9 20 20 20 20-9 20-20c0-1.3-.1-2.6-.4-3.9z"/><path fill="#FF3D00" d="m6.3 14.7 6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.9 1.2 8 3l5.7-5.7C34.3 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.1H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C36.9 39.2 44 34 44 24c0-1.3-.1-2.6-.4-3.9z"/></svg>
-              Sign in with Google
-            </button>
-            <div class="email-auth" style="margin:14px auto 0;text-align:left">
-              <p class="ea-title">Or sign in with email</p>
-              <p class="ea-sub">Only @iiitbhopal.ac.in college emails work here. New here? Tap <b>Create account</b> &mdash; same college email and password.</p>
-              <form id="gateEmailAuthForm" novalidate>
-                <div class="ea-fields">
-                  <input type="email" id="gateEmail" placeholder="College email (@iiitbhopal.ac.in)" autocomplete="email" aria-label="Email address" required />
-                  <input type="password" id="gatePassword" placeholder="Password (at least 6 characters)" autocomplete="current-password" aria-label="Password" required />
-                </div>
-                <div class="ea-actions">
-                  <button type="submit" class="ea-signin" id="gateEmailSignInBtn">Sign in</button>
-                  <button type="button" class="ea-signup" id="gateEmailSignUpBtn">Create account</button>
-                </div>
-                <p class="auth-msg" id="gateEmailAuthMsg" role="status" aria-live="polite"></p>
-              </form>
-            </div>
+            <p style="margin:0">Posting needs a sign-in with your IIIT Bhopal college email (@iiitbhopal.ac.in) &mdash; use the sign-in panel on this page. Once you sign in, the post form appears here, and only you can mark your post reunited later.</p>
           </div>
 
           <form id="postForm" novalidate hidden>
@@ -681,17 +642,12 @@
           return String(email || "").trim().toLowerCase().endsWith(COLLEGE_DOMAIN);
         }
         function showCollegeRejection(){
-          setAuthMsg($("emailAuthMsg"), COLLEGE_ONLY_MSG, false);
-          setAuthMsg($("gateEmailAuthMsg"), COLLEGE_ONLY_MSG, false);
           setAuthMsg($("boardEmailAuthMsg"), COLLEGE_ONLY_MSG, false);
           toast(COLLEGE_ONLY_MSG);
         }
         function applyAuthUI(){
           var signedIn = !!currentUser;
-          $("signInBtn").style.display = signedIn ? "none" : "";
           $("userChip").hidden = !signedIn;
-          if($("emailAuthBox")) $("emailAuthBox").hidden = signedIn;
-          if($("authDivider")) $("authDivider").hidden = signedIn;
           $("authGate").style.display = signedIn ? "none" : "";
           $("postForm").hidden = !signedIn;
           if($("boardStats")) $("boardStats").hidden = !signedIn;
@@ -828,32 +784,14 @@
             else { stopItemsListener(); if(itemsCol) setStatus("live", "Live • Firebase Connected"); }
             render();
           });
-          $("signInBtn").addEventListener("click", signInWithGoogle);
-          $("gateSignInBtn").addEventListener("click", signInWithGoogle);
           if($("boardSignInBtn")) $("boardSignInBtn").addEventListener("click", signInWithGoogle);
           $("signOutBtn").addEventListener("click", function(){
             auth.signOut().then(function(){ toast("Signed out."); });
           });
         } else {
-          $("signInBtn").addEventListener("click", signInWithGoogle);
-          $("gateSignInBtn").addEventListener("click", signInWithGoogle);
           if($("boardSignInBtn")) $("boardSignInBtn").addEventListener("click", signInWithGoogle);
         }
-        /* Email + password wiring (header form + post-form gate form) */
-        $("emailAuthForm").addEventListener("submit", function(e){
-          e.preventDefault();
-          emailSignIn($("authEmail"), $("authPassword"), $("emailAuthMsg"), [$("emailSignInBtn"), $("emailSignUpBtn")]);
-        });
-        $("emailSignUpBtn").addEventListener("click", function(){
-          emailSignUp($("authEmail"), $("authPassword"), $("emailAuthMsg"), [$("emailSignInBtn"), $("emailSignUpBtn")]);
-        });
-        $("gateEmailAuthForm").addEventListener("submit", function(e){
-          e.preventDefault();
-          emailSignIn($("gateEmail"), $("gatePassword"), $("gateEmailAuthMsg"), [$("gateEmailSignInBtn"), $("gateEmailSignUpBtn")]);
-        });
-        $("gateEmailSignUpBtn").addEventListener("click", function(){
-          emailSignUp($("gateEmail"), $("gatePassword"), $("gateEmailAuthMsg"), [$("gateEmailSignInBtn"), $("gateEmailSignUpBtn")]);
-        });
+        /* Email + password wiring (the one sign-in form, in the board gate) */
         if($("boardEmailAuthForm")){
           $("boardEmailAuthForm").addEventListener("submit", function(e){
             e.preventDefault();
