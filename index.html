@@ -122,6 +122,12 @@
         border-radius:10px;padding:9px 14px;font-weight:800;font-size:.92rem;min-height:42px;
       }
       .email-auth .ea-signup:hover{border-color:var(--teal)}
+      .email-auth .ea-resend{
+        width:100%;margin-top:8px;border:1.5px dashed var(--amber-strong);background:var(--amber-tint);
+        color:var(--ink);border-radius:10px;padding:9px 14px;font-weight:800;font-size:.92rem;min-height:42px;
+      }
+      .email-auth .ea-resend:hover{border-color:var(--ink)}
+      .email-auth .ea-resend:disabled{opacity:.55;cursor:wait}
       .auth-msg{display:none;margin:10px 0 0;border-radius:10px;padding:10px 12px;font-size:.9rem;font-weight:600}
       .auth-msg.ok{display:block;background:var(--teal-tint);color:var(--teal-dark)}
       .auth-msg.err{display:block;background:var(--rust-tint);color:var(--rust)}
@@ -500,7 +506,7 @@
             </button>
             <div class="email-auth">
               <p class="ea-title">Or sign in with email</p>
-              <p class="ea-sub">Only IIIT Bhopal college email accounts (@iiitbhopal.ac.in) can sign in. Already have an account? Sign in below. New here? Tap <b>Create account</b> instead &mdash; same college email and password.</p>
+              <p class="ea-sub">Only IIIT Bhopal college email accounts (@iiitbhopal.ac.in) can sign in. Already have an account? Sign in below. New here? Tap <b>Create account</b> instead &mdash; same college email and password. New accounts get a verification link by email: click it before signing in.</p>
               <form id="boardEmailAuthForm" novalidate>
                 <div class="ea-fields">
                   <input type="email" id="boardEmail" placeholder="College email (@iiitbhopal.ac.in)" autocomplete="email" aria-label="Email address" required />
@@ -510,6 +516,7 @@
                   <button type="submit" class="ea-signin" id="boardEmailSignInBtn">Sign in</button>
                   <button type="button" class="ea-signup" id="boardEmailSignUpBtn">Create account</button>
                 </div>
+                <button type="button" class="ea-resend" id="boardResendBtn" hidden>Resend verification email</button>
                 <p class="auth-msg" id="boardEmailAuthMsg" role="status" aria-live="polite"></p>
               </form>
             </div>
@@ -645,6 +652,79 @@
           setAuthMsg($("boardEmailAuthMsg"), COLLEGE_ONLY_MSG, false);
           toast(COLLEGE_ONLY_MSG);
         }
+        /* ---------- Email verification ----------
+           An email + password account may only use the app once its email
+           address is verified (Firebase sends the verification link; the
+           account owner proves the address is really theirs by clicking
+           it). This stops anyone creating an account with someone else's
+           college email. Google sign-in is exempt: Google has already
+           verified those addresses. The check runs in the auth-state
+           listener below, so it fires on EVERY sign-in and EVERY
+           auth-state change — an unverified account is signed straight
+           back out and never reaches the board or the post form. */
+        var VERIFY_FIRST_MSG = "Please verify your email first — check your inbox for the verification link.";
+        var pendingVerifyUser = null;   /* unverified user object, kept so Resend can mail them again */
+        var pendingSignupEmail = "";    /* set just before a sign-up, so the listener shows the "link sent" message */
+        function signupSentMsg(email){
+          return "Account created — a verification link has been sent to " + email + ". Click the link in that email, then come back and sign in here. You must verify your email before you can sign in, see the board or post.";
+        }
+        function isEmailVerifiedUser(user){
+          if(!user) return false;
+          var providers = user.providerData || [];
+          for(var i=0;i<providers.length;i++){
+            if(providers[i] && providers[i].providerId === "google.com") return true;
+          }
+          return !!user.emailVerified;
+        }
+        function showResendBtn(show){
+          var b = $("boardResendBtn");
+          if(b) b.hidden = !show;
+        }
+        function resendVerification(btn){
+          if(!auth){ setAuthMsg($("boardEmailAuthMsg"), "Sign-in is not available right now — Firebase did not connect.", false); return; }
+          var msgEl = $("boardEmailAuthMsg");
+          btn.disabled = true;
+          function done(){ btn.disabled = false; }
+          function sentOk(email){
+            setAuthMsg(msgEl, "Verification email sent again to " + email + " — check your inbox (and the spam folder), click the link, then sign in.", true);
+            toast("Verification email sent again — check your inbox.");
+            done();
+          }
+          function fallback(){
+            /* The saved user reference can no longer send (e.g. the page
+               was reloaded) — sign in once more with the form's email +
+               password, send the link, and sign straight back out. The
+               auth-state listener keeps the account blocked throughout. */
+            var email = ($("boardEmail").value || "").trim();
+            var password = $("boardPassword").value || "";
+            if(!isCollegeEmail(email) || !password){
+              setAuthMsg(msgEl, "To resend the link, type your college email and password above first, then tap Resend verification email again.", false);
+              done();
+              return;
+            }
+            auth.signInWithEmailAndPassword(email, password).then(function(cred){
+              pendingVerifyUser = cred.user;
+              return cred.user.sendEmailVerification();
+            }).then(function(){
+              return auth.signOut().catch(function(){});
+            }).then(function(){
+              sentOk(email);
+            }).catch(function(err){
+              setAuthMsg(msgEl, "Could not resend the verification email: " + (err && err.message ? err.message : "please try again."), false);
+              done();
+            });
+          }
+          if(pendingVerifyUser && pendingVerifyUser.sendEmailVerification){
+            var target = pendingVerifyUser.email || "";
+            pendingVerifyUser.sendEmailVerification().then(function(){
+              sentOk(target);
+            }).catch(function(){
+              fallback();
+            });
+          } else {
+            fallback();
+          }
+        }
         function applyAuthUI(){
           var signedIn = !!currentUser;
           $("userChip").hidden = !signedIn;
@@ -707,7 +787,15 @@
           if(!email || !password){ setAuthMsg(msgEl, "Please enter both your email and your password.", false); return; }
           if(!isCollegeEmail(email)){ setAuthMsg(msgEl, COLLEGE_ONLY_EMAIL_MSG, false); return; }
           btns.forEach(function(b){ if(b) b.disabled = true; });
-          auth.signInWithEmailAndPassword(email, password).then(function(){
+          auth.signInWithEmailAndPassword(email, password).then(function(cred){
+            if(cred && cred.user && !isEmailVerifiedUser(cred.user)){
+              /* Not verified: do NOT welcome them in. The auth-state
+                 listener signs them straight back out and shows the
+                 verify-first message with the Resend button. The
+                 password stays in the field so Resend can re-send. */
+              pendingVerifyUser = cred.user;
+              return;
+            }
             setAuthMsg(msgEl, "Signed in — welcome back!", true);
             passEl.value = "";
           }).catch(function(err){
@@ -724,17 +812,35 @@
           if(password.length < 6){ setAuthMsg(msgEl, "That password is too weak — use at least 6 characters.", false); return; }
           if(!isCollegeEmail(email)){ setAuthMsg(msgEl, COLLEGE_ONLY_EMAIL_MSG, false); return; }
           btns.forEach(function(b){ if(b) b.disabled = true; });
+          /* Set synchronously, before the account exists: when the
+             auth-state listener fires for the brand-new (unverified)
+             user, it shows the "verification link sent" message below
+             instead of the generic verify-first one. */
+          pendingSignupEmail = email.toLowerCase();
           auth.createUserWithEmailAndPassword(email, password).then(function(cred){
+            var user = cred && cred.user ? cred.user : null;
+            pendingVerifyUser = user;
+            var steps = [];
             var derived = nameFromEmail(email);
-            if(cred && cred.user && derived){
-              return cred.user.updateProfile({ displayName: derived }).catch(function(){});
+            if(user && derived){
+              steps.push(user.updateProfile({ displayName: derived }).catch(function(){}));
             }
+            if(user){
+              /* Send the verification email to the address just used —
+                 only whoever owns that inbox can click the link. */
+              steps.push(user.sendEmailVerification().catch(function(){}));
+            }
+            return Promise.all(steps);
           }).then(function(){
-            setAuthMsg(msgEl, "Account created and signed in — you can post now.", true);
+            pendingSignupEmail = "";
+            setAuthMsg(msgEl, signupSentMsg(email), true);
+            showResendBtn(true);
             passEl.value = "";
-            /* Refresh the chip / name field now that a display name exists */
-            if(auth.currentUser){ currentUser = auth.currentUser; applyAuthUI(); render(); }
+            /* The new account is NOT let in yet: sign straight back out.
+               The listener also enforces this on the auth-state change. */
+            if(auth.currentUser) return auth.signOut().catch(function(){});
           }).catch(function(err){
+            pendingSignupEmail = "";
             setAuthMsg(msgEl, authErrorMessage(err, true), false);
           }).then(function(){
             btns.forEach(function(b){ if(b) b.disabled = false; });
@@ -778,6 +884,30 @@
               auth.signOut().then(function(){ showCollegeRejection(); }).catch(function(){ showCollegeRejection(); });
               return;
             }
+            if(user && !isEmailVerifiedUser(user)){
+              /* EMAIL VERIFICATION GATE — runs on every sign-in and every
+                 auth-state change. An unverified email account is signed
+                 straight back out: no board data is fetched, the board
+                 and post form stay hidden, and the only way forward is
+                 the verification link in their inbox (or Resend). */
+              pendingVerifyUser = user;
+              currentUser = null;
+              stopItemsListener();
+              applyAuthUI();
+              if(itemsCol) setStatus("live", "Live • Firebase Connected");
+              render();
+              if(pendingSignupEmail && String(user.email || "").toLowerCase() === pendingSignupEmail){
+                pendingSignupEmail = "";
+                setAuthMsg($("boardEmailAuthMsg"), signupSentMsg(user.email), true);
+              } else {
+                setAuthMsg($("boardEmailAuthMsg"), VERIFY_FIRST_MSG, false);
+                toast(VERIFY_FIRST_MSG);
+              }
+              showResendBtn(true);
+              auth.signOut().catch(function(){});
+              return;
+            }
+            if(user){ pendingVerifyUser = null; showResendBtn(false); }
             currentUser = user || null;
             applyAuthUI();
             if(currentUser){ startItemsListener(); }
@@ -799,6 +929,9 @@
           });
           $("boardEmailSignUpBtn").addEventListener("click", function(){
             emailSignUp($("boardEmail"), $("boardPassword"), $("boardEmailAuthMsg"), [$("boardEmailSignInBtn"), $("boardEmailSignUpBtn")]);
+          });
+          if($("boardResendBtn")) $("boardResendBtn").addEventListener("click", function(){
+            resendVerification(this);
           });
         }
         applyAuthUI();
