@@ -358,7 +358,33 @@
       .empty.show{display:block}
       .empty b{display:block;font-size:1.1rem;color:var(--ink);margin-bottom:4px}
 
-      footer{margin-top:40px;border-top:1px solid var(--line);padding-top:16px;color:var(--ink-3);font-size:.87rem;display:flex;flex-wrap:wrap;gap:8px;justify-content:space-between}
+      footer{margin-top:40px;border-top:1px solid var(--line);padding-top:16px;color:var(--ink-3);font-size:.87rem}
+      .footer-top{display:flex;flex-wrap:wrap;gap:8px 18px;justify-content:space-between}
+      .footer-links{margin-top:14px;padding-top:12px;border-top:1px dashed var(--line);display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center}
+      .footer-links button{background:none;border:0;padding:4px 2px;color:var(--ink);font-weight:800;font-size:.88rem;text-decoration:underline;text-underline-offset:3px;min-height:32px}
+      .footer-links button:hover{color:var(--teal-dark)}
+      .footer-links a{color:var(--ink);font-weight:700}
+      .footer-links a:hover{color:var(--teal-dark)}
+      .footer-links .sep{color:var(--line-strong)}
+      /* Policy panels */
+      .policy-overlay{position:fixed;inset:0;background:rgba(59,47,33,.58);z-index:60;display:none;align-items:flex-end;justify-content:center;padding:0}
+      .policy-overlay.open{display:flex}
+      @media(min-width:700px){.policy-overlay{align-items:center;padding:22px}}
+      .policy-panel{background:var(--surface);width:100%;max-width:720px;max-height:88vh;overflow:auto;border:1px solid var(--line-strong);box-shadow:var(--shadow-lg);border-radius:14px 14px 0 0;padding:0}
+      @media(min-width:700px){.policy-panel{border-radius:14px}}
+      .policy-head{position:sticky;top:0;background:var(--surface);border-bottom:1px dashed var(--line-strong);padding:18px 20px 14px;display:flex;gap:12px;align-items:flex-start;justify-content:space-between;z-index:1}
+      .policy-head h2{font-family:"Caveat",cursive;font-size:2rem;line-height:1;margin:0;font-weight:700;color:var(--ink)}
+      .policy-head p{margin:4px 0 0;font-size:.86rem;color:var(--ink-3)}
+      .policy-close{flex:0 0 auto;border:1px solid var(--line-strong);background:var(--surface-2);border-radius:999px;padding:7px 13px;font-weight:800;font-size:.88rem;min-height:38px}
+      .policy-body{padding:18px 20px 22px;color:var(--ink-2);font-size:.95rem;line-height:1.65}
+      .policy-body h3{color:var(--ink);font-size:1rem;margin:18px 0 6px}
+      .policy-body h3:first-child{margin-top:0}
+      .policy-body p{margin:0 0 10px}
+      .policy-body ul{margin:6px 0 12px 18px;padding:0}
+      .policy-body li{margin:5px 0}
+      .policy-body a{color:var(--teal-dark);font-weight:700}
+      .policy-contact{margin-top:18px;background:var(--surface-2);border:1px dashed var(--line-strong);border-radius:10px;padding:13px 14px}
+      .policy-contact b{color:var(--ink)}
       .toast{
         position:fixed;left:50%;bottom:22px;transform:translate(-50%,80px);z-index:50;
         background:var(--ink);color:var(--bg);border-radius:12px;padding:13px 18px;font-weight:700;
@@ -573,9 +599,121 @@
       </div>
 
       <footer>
-        <span>Campus Lost &amp; Found &mdash; a student notice board for getting things back to their owners.<br />Built by Manoj Choudhary &middot; Scholar No. 26U020146 &middot; FoCP (CSE-1003)</span>
-        <span>Tip: always verify one detail from the description before handing an item over.</span>
+        <div class="footer-top">
+          <span>Campus Lost &amp; Found &mdash; a student notice board for getting things back to their owners.<br />Built by Manoj Choudhary &middot; Scholar No. 26U020146 &middot; FoCP (CSE-1003)</span>
+          <span>Tip: always verify one detail from the description before handing an item over.</span>
+        </div>
+        <div class="footer-links" aria-label="Policies and contact">
+          <button type="button" id="openPrivacyBtn">Privacy Policy</button>
+          <span class="sep" aria-hidden="true">•</span>
+          <button type="button" id="openTermsBtn">Terms &amp; Conditions</button>
+          <span class="sep" aria-hidden="true">•</span>
+          <span>Admin / Contact: <a href="mailto:hello@manojchoudhary.me">hello@manojchoudhary.me</a></span>
+        </div>
       </footer>
+    </div>
+
+    <!-- Privacy Policy panel -->
+    <div class="policy-overlay" id="privacyOverlay" aria-hidden="true">
+      <div class="policy-panel" role="dialog" aria-modal="true" aria-labelledby="privacyTitle">
+        <div class="policy-head">
+          <div>
+            <h2 id="privacyTitle">Privacy Policy</h2>
+            <p>Campus Lost &amp; Found &middot; Last updated: 26 November 2026</p>
+          </div>
+          <button type="button" class="policy-close" data-close-policy>Close</button>
+        </div>
+        <div class="policy-body">
+          <p>This is a student project made for IIIT Bhopal. This policy explains in simple words what information this board collects, where it is stored, and what you can ask us to do with it.</p>
+
+          <h3>1. What we collect</h3>
+          <p>When you sign in and post, we collect:</p>
+          <ul>
+            <li>Your name</li>
+            <li>Your college email address — only @iiitbhopal.ac.in email addresses can sign in</li>
+            <li>Your phone / WhatsApp contact that you type in the post form</li>
+            <li>Your post details — item name, category, place, date, and description</li>
+            <li>A photo of the item, if you add one</li>
+          </ul>
+          <p>We do not collect anything else for this board.</p>
+
+          <h3>2. Where your data is stored</h3>
+          <p>Posts and photos are stored in <strong>Firebase Firestore</strong>, a database provided by Google / Firebase. If you add a photo, it is first compressed in your browser and then stored inside the post document itself in Firestore. We do not use a separate photo storage service for this project.</p>
+          <p>Your sign-in is also handled by Firebase Authentication (Google sign-in or email and password).</p>
+
+          <h3>3. Who can see your posts</h3>
+          <p>The board is visible <strong>only to signed-in college users</strong>. If a person is not signed in with a college email account, they cannot see the board, posts, photos, places, dates, or contacts. The app also does not fetch board data while you are signed out.</p>
+          <p>Once you are signed in, other signed-in college users can see your post and can reveal the contact you added so they can return or claim the item.</p>
+
+          <h3>4. Who can change a post</h3>
+          <p>Only the person who uploaded a post can mark that post as <strong>Reunited</strong>. Other users cannot do this for your post.</p>
+
+          <h3>5. Sharing your data</h3>
+          <p>We do not sell your data and we do not share it with any third party for advertising or marketing. Your data is shared only with <strong>Firebase / Google</strong>, because they provide the hosting, sign-in, and database for this app. No other third party gets your data from us.</p>
+
+          <h3>6. How long we keep it</h3>
+          <p>Posts stay on the board until they are marked reunited or removed. This is a college project, so old posts may also be removed when the project is cleaned up or closed.</p>
+
+          <h3>7. Ask for removal</h3>
+          <p>You can ask for your post or your account data to be removed at any time. Send an email to the admin and tell us which post or account you want removed. We will remove it as soon as we reasonably can.</p>
+
+          <div class="policy-contact">
+            <b>Questions or data-removal requests</b><br />
+            Admin / Contact email: <a href="mailto:hello@manojchoudhary.me">hello@manojchoudhary.me</a><br />
+            Please write from your college email if possible, so we can confirm the post or account is yours.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Terms & Conditions panel -->
+    <div class="policy-overlay" id="termsOverlay" aria-hidden="true">
+      <div class="policy-panel" role="dialog" aria-modal="true" aria-labelledby="termsTitle">
+        <div class="policy-head">
+          <div>
+            <h2 id="termsTitle">Terms &amp; Conditions</h2>
+            <p>Campus Lost &amp; Found &middot; Last updated: 26 November 2026</p>
+          </div>
+          <button type="button" class="policy-close" data-close-policy>Close</button>
+        </div>
+        <div class="policy-body">
+          <p>By using this board, you agree to these simple rules. This board is made to help students return lost items on campus.</p>
+
+          <h3>1. Who can use this board</h3>
+          <p>Only <strong>IIIT Bhopal students</strong> with a college email address ending in <strong>@iiitbhopal.ac.in</strong> may sign in and use this board. Please use your own college account only.</p>
+
+          <h3>2. What you can post</h3>
+          <p>Posts must be about <strong>genuine lost or found items on campus</strong> — for example, an item you lost in college or an item you found in college and want to return. Please give a correct item name, category, place, date, and description.</p>
+
+          <h3>3. What is not allowed</h3>
+          <ul>
+            <li>No spam</li>
+            <li>No fake or joke posts</li>
+            <li>No abusive, rude, or harmful content</li>
+            <li>No posting someone else&rsquo;s private information</li>
+            <li>No using the board for selling, advertising, or anything unrelated to lost and found</li>
+          </ul>
+          <p>The admin may remove any post that breaks these rules.</p>
+
+          <h3>4. Verify before you hand over an item</h3>
+          <p>Before handing an item to anyone, the finder and the owner must <strong>verify at least one detail</strong> — for example, a detail from the description, a mark on the item, or what was inside it. Do not hand over an item only because someone says &ldquo;it is mine&rdquo;.</p>
+          <p>Meet in a safe, public place inside campus for the handover.</p>
+
+          <h3>5. Marking a post as Reunited</h3>
+          <p>Only the person who created a post can mark it as Reunited. Please mark it only after the item has actually been returned.</p>
+
+          <h3>6. This is a student project</h3>
+          <p>Campus Lost &amp; Found is a <strong>student project</strong> made for a college subject. It is not an official college service. The admin will try to help, but the admin is <strong>not responsible</strong> for any lost item, for whether an item is returned, or for any meeting or handover arranged through this board. Please use your own judgement and stay safe.</p>
+
+          <h3>7. Changes to these terms</h3>
+          <p>These terms may be updated if the project changes. The date at the top of this page shows when they were last updated.</p>
+
+          <div class="policy-contact">
+            <b>Questions about these terms</b><br />
+            Admin / Contact email: <a href="mailto:hello@manojchoudhary.me">hello@manojchoudhary.me</a>
+          </div>
+        </div>
+      </div>
     </div>
 
     <div class="toast" id="toast" role="status"></div>
@@ -1508,6 +1646,47 @@
         $("fDate").value = iso;
         $("fDate").max = iso;
         render();
+      })();
+    </script>
+    <script>
+      (function(){
+        var privacyOverlay = document.getElementById('privacyOverlay');
+        var termsOverlay = document.getElementById('termsOverlay');
+        var openPrivacyBtn = document.getElementById('openPrivacyBtn');
+        var openTermsBtn = document.getElementById('openTermsBtn');
+        function openPanel(overlay){
+          if(!overlay) return;
+          overlay.classList.add('open');
+          overlay.setAttribute('aria-hidden','false');
+          document.body.style.overflow = 'hidden';
+          var closeBtn = overlay.querySelector('[data-close-policy]');
+          if(closeBtn) closeBtn.focus();
+        }
+        function closePanel(overlay){
+          if(!overlay) return;
+          overlay.classList.remove('open');
+          overlay.setAttribute('aria-hidden','true');
+          document.body.style.overflow = '';
+        }
+        function closeAll(){
+          closePanel(privacyOverlay);
+          closePanel(termsOverlay);
+        }
+        if(openPrivacyBtn) openPrivacyBtn.addEventListener('click', function(){ openPanel(privacyOverlay); });
+        if(openTermsBtn) openTermsBtn.addEventListener('click', function(){ openPanel(termsOverlay); });
+        [privacyOverlay, termsOverlay].forEach(function(overlay){
+          if(!overlay) return;
+          overlay.addEventListener('click', function(e){
+            if(e.target === overlay) closePanel(overlay);
+          });
+          var closers = overlay.querySelectorAll('[data-close-policy]');
+          closers.forEach(function(btn){
+            btn.addEventListener('click', function(){ closePanel(overlay); });
+          });
+        });
+        document.addEventListener('keydown', function(e){
+          if(e.key === 'Escape') closeAll();
+        });
       })();
     </script>
   </body>
