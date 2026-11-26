@@ -145,6 +145,14 @@
       .auth-gate b{display:block;font-size:1.02rem;margin-bottom:4px}
       .auth-gate p{margin:0 0 12px;color:var(--ink-2);font-size:.92rem}
       .auth-gate .signin-btn{margin:0 auto}
+      .board-gate{
+        border:1.5px dashed var(--line-strong);border-radius:var(--radius);background:var(--surface);
+        padding:30px 22px;text-align:center;box-shadow:var(--shadow);
+      }
+      .board-gate h3{font-family:"Caveat",cursive;font-weight:700;font-size:2rem;margin:0 0 6px}
+      .board-gate p{margin:0 auto 16px;color:var(--ink-2);font-size:.96rem;max-width:46ch}
+      .board-gate .signin-btn{margin:0 auto}
+      .board-gate .email-auth{margin:14px auto 0;text-align:left}
       .owner-note{font-size:.8rem;color:var(--ink-3);align-self:center}
       .stats{display:flex;gap:10px;flex-wrap:wrap}
       .stat{
@@ -390,7 +398,7 @@
               </form>
             </div>
           </div>
-          <div class="stats" aria-label="Board statistics">
+          <div class="stats" id="boardStats" aria-label="Board statistics" hidden>
             <div class="stat lost"><b id="statLost">0</b><span>Still lost</span></div>
             <div class="stat found"><b id="statFound">0</b><span>Found items</span></div>
             <div class="stat done"><b id="statDone">0</b><span>Reunited</span></div>
@@ -522,6 +530,31 @@
 
         <!-- ============ BOARD ============ -->
         <section aria-labelledby="boardTitle">
+          <div class="board-gate" id="boardGate">
+            <h3 id="boardTitleLocked">Sign in to see the board</h3>
+            <p>The board is visible only after signing in. Posts, photos, places, dates and contacts stay hidden until you sign in with Google or email.</p>
+            <button type="button" class="signin-btn" id="boardSignInBtn">
+              <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.1H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.2 8 3l5.7-5.7C34.3 6.1 29.3 4 24 4 13 4 4 13 4 24s9 20 20 20 20-9 20-20c0-1.3-.1-2.6-.4-3.9z"/><path fill="#FF3D00" d="m6.3 14.7 6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.9 1.2 8 3l5.7-5.7C34.3 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.1H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C36.9 39.2 44 34 44 24c0-1.3-.1-2.6-.4-3.9z"/></svg>
+              Sign in with Google
+            </button>
+            <div class="email-auth">
+              <p class="ea-title">Or sign in with email</p>
+              <p class="ea-sub">Already have an account? Sign in below. New here? Tap <b>Create account</b> instead &mdash; same email and password.</p>
+              <form id="boardEmailAuthForm" novalidate>
+                <div class="ea-fields">
+                  <input type="email" id="boardEmail" placeholder="Email address" autocomplete="email" aria-label="Email address" required />
+                  <input type="password" id="boardPassword" placeholder="Password (at least 6 characters)" autocomplete="current-password" aria-label="Password" required />
+                </div>
+                <div class="ea-actions">
+                  <button type="submit" class="ea-signin" id="boardEmailSignInBtn">Sign in</button>
+                  <button type="button" class="ea-signup" id="boardEmailSignUpBtn">Create account</button>
+                </div>
+                <p class="auth-msg" id="boardEmailAuthMsg" role="status" aria-live="polite"></p>
+              </form>
+            </div>
+          </div>
+
+          <div id="boardMain" hidden>
           <div class="board-head">
             <h2 id="boardTitle">The board</h2>
             <span class="count" id="boardCount"></span>
@@ -566,6 +599,7 @@
           <div class="empty" id="emptyState">
             <b id="emptyTitle">No items yet &mdash; be the first to post.</b>
             <span id="emptyText">Lost something, or found something that isn&rsquo;t yours? Post it using the form and it will appear here on the board.</span>
+          </div>
           </div>
         </section>
       </div>
@@ -647,6 +681,9 @@
           if($("authDivider")) $("authDivider").hidden = signedIn;
           $("authGate").style.display = signedIn ? "none" : "";
           $("postForm").hidden = !signedIn;
+          if($("boardStats")) $("boardStats").hidden = !signedIn;
+          if($("boardGate")) $("boardGate").hidden = signedIn;
+          if($("boardMain")) $("boardMain").hidden = !signedIn;
           if(signedIn){
             var display = currentUser.displayName || currentUser.email || "Signed in";
             $("userName").textContent = display;
@@ -754,16 +791,20 @@
           auth.onAuthStateChanged(function(user){
             currentUser = user || null;
             applyAuthUI();
+            if(currentUser){ startItemsListener(); }
+            else { stopItemsListener(); if(itemsCol) setStatus("live", "Live • Firebase Connected"); }
             render();
           });
           $("signInBtn").addEventListener("click", signInWithGoogle);
           $("gateSignInBtn").addEventListener("click", signInWithGoogle);
+          if($("boardSignInBtn")) $("boardSignInBtn").addEventListener("click", signInWithGoogle);
           $("signOutBtn").addEventListener("click", function(){
             auth.signOut().then(function(){ toast("Signed out."); });
           });
         } else {
           $("signInBtn").addEventListener("click", signInWithGoogle);
           $("gateSignInBtn").addEventListener("click", signInWithGoogle);
+          if($("boardSignInBtn")) $("boardSignInBtn").addEventListener("click", signInWithGoogle);
         }
         /* Email + password wiring (header form + post-form gate form) */
         $("emailAuthForm").addEventListener("submit", function(e){
@@ -780,6 +821,15 @@
         $("gateEmailSignUpBtn").addEventListener("click", function(){
           emailSignUp($("gateEmail"), $("gatePassword"), $("gateEmailAuthMsg"), [$("gateEmailSignInBtn"), $("gateEmailSignUpBtn")]);
         });
+        if($("boardEmailAuthForm")){
+          $("boardEmailAuthForm").addEventListener("submit", function(e){
+            e.preventDefault();
+            emailSignIn($("boardEmail"), $("boardPassword"), $("boardEmailAuthMsg"), [$("boardEmailSignInBtn"), $("boardEmailSignUpBtn")]);
+          });
+          $("boardEmailSignUpBtn").addEventListener("click", function(){
+            emailSignUp($("boardEmail"), $("boardPassword"), $("boardEmailAuthMsg"), [$("boardEmailSignInBtn"), $("boardEmailSignUpBtn")]);
+          });
+        }
         applyAuthUI();
 
         /* ---------- Board items (loaded live from Firestore; starts empty) ---------- */
@@ -965,6 +1015,13 @@
 
         /* ---------- Render ---------- */
         function render(){
+          if(!currentUser){
+            var g = $("grid"); if(g) g.innerHTML = "";
+            var bc = $("boardCount"); if(bc) bc.textContent = "";
+            var mp = $("matchPanel"); if(mp) mp.classList.remove("show");
+            var es = $("emptyState"); if(es) es.classList.remove("show");
+            return;
+          }
           var q = $("searchInput").value.trim().toLowerCase();
           var cat = $("catFilter").value;
 
@@ -1304,9 +1361,19 @@
           }
         });
 
-        /* ---------- Live board: real-time listener on Firestore ---------- */
-        if(itemsCol){
-          itemsCol.orderBy("createdAt", "desc").onSnapshot(function(snap){
+        /* ---------- Live board: real-time listener on Firestore ----------
+           The board data is only fetched AFTER sign-in. No subscription
+           exists while signed out, so no post, photo, place, date,
+           description or contact is ever delivered to a signed-out
+           visitor's browser. Signing out unsubscribes and clears the
+           in-memory items. (For full server-side enforcement, the
+           project's Firestore rules should also require authentication
+           for reads of the lostItems collection.) */
+        var unsubscribeItems = null;
+        function startItemsListener(){
+          if(!itemsCol || unsubscribeItems) return;
+          unsubscribeItems = itemsCol.orderBy("createdAt", "desc").onSnapshot(function(snap){
+            if(!currentUser){ return; }
             var loaded = [];
             snap.forEach(function(doc){
               var d = doc.data();
@@ -1325,6 +1392,10 @@
           }, function(err){
             setStatus("error", "Could not connect to Firebase — " + err.message + " Reload the page to try again.");
           });
+        }
+        function stopItemsListener(){
+          if(unsubscribeItems){ try { unsubscribeItems(); } catch(e){} unsubscribeItems = null; }
+          items = [];
         }
 
         /* ---------- Init ---------- */
