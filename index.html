@@ -366,6 +366,20 @@
       .footer-links a{color:var(--ink);font-weight:700}
       .footer-links a:hover{color:var(--teal-dark)}
       .footer-links .sep{color:var(--line-strong)}
+      /* Team credits — names & scholar numbers, large display style */
+      .team-credits{margin-top:20px;background:var(--surface);border:1.5px solid var(--line-strong);border-radius:14px;padding:18px;box-shadow:var(--shadow)}
+      .team-credits .team-label{font-family:"Caveat",cursive;font-weight:700;font-size:1.7rem;line-height:1;color:var(--ink);margin:0}
+      .team-credits .team-course{font-size:.82rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);margin:5px 0 0}
+      .team-grid{display:flex;flex-wrap:wrap;gap:12px;margin-top:14px}
+      .team-member{flex:1 1 190px;background:var(--surface-2);border:1px solid var(--line);border-radius:12px;padding:14px 16px 13px;min-width:0}
+      .team-member .team-name{display:block;font-size:1.32rem;font-weight:900;line-height:1.15;letter-spacing:-.015em;color:var(--ink)}
+      .team-member .team-roll{display:inline-block;margin-top:9px;font-family:"DM Mono",monospace;font-size:1.02rem;font-weight:500;letter-spacing:.03em;background:var(--surface);border:1.5px solid var(--line-strong);border-radius:999px;padding:5px 12px;color:var(--ink)}
+      .team-member.lead{flex-basis:230px;background:var(--ink);border-color:var(--ink);box-shadow:var(--shadow)}
+      .team-member.lead .team-name{font-size:1.62rem;color:var(--bg)}
+      .team-member.lead .team-roll{background:transparent;border-color:rgba(233,220,188,.55);color:var(--bg);font-size:1.08rem}
+      .team-member .team-role{display:block;margin-top:7px;font-size:.78rem;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--teal-dark)}
+      .team-member.lead .team-role{color:var(--amber-strong)}
+      @media (max-width:560px){.team-member{flex-basis:100%}.team-member.lead .team-name{font-size:1.5rem}.team-member .team-name{font-size:1.28rem}}
       /* Policy panels */
       .policy-overlay{position:fixed;inset:0;background:rgba(59,47,33,.58);z-index:60;display:none;align-items:flex-end;justify-content:center;padding:0}
       .policy-overlay.open{display:flex}
@@ -600,8 +614,29 @@
 
       <footer>
         <div class="footer-top">
-          <span>FoundLoop &mdash; a student notice board for getting things back to their owners.<br />Built by Manoj Choudhary &middot; Scholar No. 26U020146 &middot; FoCP (CSE-1003)</span>
+          <span>FoundLoop &mdash; a student notice board for getting things back to their owners.</span>
           <span>Tip: always verify one detail from the description before handing an item over.</span>
+        </div>
+        <div class="team-credits" aria-label="Project team">
+          <p class="team-label">Built by the team</p>
+          <p class="team-course">FoCP (CSE-1003) &middot; IIIT Bhopal</p>
+          <div class="team-grid">
+            <div class="team-member lead">
+              <span class="team-name">Manoj Choudhary</span>
+              <span class="team-roll">26U020146</span>
+              <span class="team-role">Team Lead</span>
+            </div>
+            <div class="team-member">
+              <span class="team-name">Arvind Choudhary</span>
+              <span class="team-roll">26U020131</span>
+              <span class="team-role">Team Member</span>
+            </div>
+            <div class="team-member">
+              <span class="team-name">Shaurya Srivastava</span>
+              <span class="team-roll">26U020141</span>
+              <span class="team-role">Team Member</span>
+            </div>
+          </div>
         </div>
         <div class="footer-links" aria-label="Policies and contact">
           <button type="button" id="openPrivacyBtn">Privacy Policy</button>
