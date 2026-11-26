@@ -532,7 +532,7 @@
             </button>
             <div class="email-auth">
               <p class="ea-title">Or sign in with email</p>
-              <p class="ea-sub">Only IIIT Bhopal college email accounts (@iiitbhopal.ac.in) can sign in. Already have an account? Sign in below. New here? Tap <b>Create account</b> instead &mdash; same college email and password. New accounts get a verification link by email: click it before signing in.</p>
+              <p class="ea-sub">Only IIIT Bhopal college email accounts (@iiitbhopal.ac.in) can sign in. Already have an account? Sign in below. New here? Tap <b>Create account</b> instead &mdash; same college email and password. New accounts get a verification link by email — please check your spam / junk folder too if you don't see it — click it before signing in.</p>
               <form id="boardEmailAuthForm" novalidate>
                 <div class="ea-fields">
                   <input type="email" id="boardEmail" placeholder="College email (@iiitbhopal.ac.in)" autocomplete="email" aria-label="Email address" required />
@@ -800,11 +800,11 @@
            listener below, so it fires on EVERY sign-in and EVERY
            auth-state change — an unverified account is signed straight
            back out and never reaches the board or the post form. */
-        var VERIFY_FIRST_MSG = "Please verify your email first — check your inbox for the verification link.";
+        var VERIFY_FIRST_MSG = "Please verify your email first — check your inbox (and spam / junk folder) for the verification link.";
         var pendingVerifyUser = null;   /* unverified user object, kept so Resend can mail them again */
         var pendingSignupEmail = "";    /* set just before a sign-up, so the listener shows the "link sent" message */
         function signupSentMsg(email){
-          return "Account created — a verification link has been sent to " + email + ". Click the link in that email, then come back and sign in here. You must verify your email before you can sign in, see the board or post.";
+          return "Account created — a verification link has been sent to " + email + ". Please check your spam / junk folder too if you don't see it in your inbox. Click the link in that email, then come back and sign in here. You must verify your email before you can sign in, see the board or post.";
         }
         function isEmailVerifiedUser(user){
           if(!user) return false;
@@ -825,7 +825,7 @@
           function done(){ btn.disabled = false; }
           function sentOk(email){
             setAuthMsg(msgEl, "Verification email sent again to " + email + " — check your inbox (and the spam folder), click the link, then sign in.", true);
-            toast("Verification email sent again — check your inbox.");
+            toast("Verification email sent again — check your inbox and spam / junk folder.");
             done();
           }
           function fallback(){
